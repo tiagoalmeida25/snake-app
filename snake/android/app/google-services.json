@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "933418996723",
+    "project_id": "snake-d0598",
+    "storage_bucket": "snake-d0598.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:933418996723:android:7f5749916ff430d6637886",
+        "android_client_info": {
+          "package_name": "com.example.snake"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "933418996723-j78t0hua4djjc0vuvargb2vlfi5cv8e9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4_TCxiOTV8wEiT-jt_IUBkBDSFetZyes"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "933418996723-j78t0hua4djjc0vuvargb2vlfi5cv8e9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
