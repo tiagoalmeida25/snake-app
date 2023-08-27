@@ -91,16 +91,47 @@ class LoginState extends State<Login> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          const Text(
-            's n a k e game',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 45,
-              fontWeight: FontWeight.bold,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Row(
+              children:const [
+                 Text(
+                  'snake',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 45,
+                    fontWeight: FontWeight.bold,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+                 Text(
+                  ' game',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 45,
+                  ),
+                 )
+              ],
             ),
           ),
           Column(
             children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Row(
+                  children: const [
+                    Text(
+                      'Login',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
               UsernameField(
                 controller: emailController,
                 hintText: 'Email',
@@ -110,7 +141,7 @@ class LoginState extends State<Login> {
                 controller: passwordController,
                 hintText: 'Password',
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 30),
                 child: Row(
@@ -125,6 +156,7 @@ class LoginState extends State<Login> {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 15,
+                          decoration: TextDecoration.underline,
                         ),
                       ),
                     ),
@@ -139,10 +171,10 @@ class LoginState extends State<Login> {
             },
             style: ElevatedButton.styleFrom(
               foregroundColor: Colors.white,
-              backgroundColor: Colors.blue,
+              backgroundColor: Colors.green,
               elevation: 5, // Shadow elevation
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(16),
               ),
               padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
             ),

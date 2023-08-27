@@ -14,9 +14,10 @@ class Snake extends StatefulWidget {
   SnakeState createState() => SnakeState();
 }
 
-class SnakeState extends State<Snake> {
-  static List<int> snakePosition = [35, 50, 65, 80];
-  int numberOfSquares = 330;
+class SnakeState extends State<Snake> with WidgetsBindingObserver {
+  static List<int> snakePosition = [45, 65, 85, 105];
+  int numberOfSquares = 580;
+  int rowSize = 20;
   final nameController = TextEditingController();
   bool isGameStart = true;
   bool isGameOnPause = false;
@@ -27,31 +28,55 @@ class SnakeState extends State<Snake> {
   @override
   void initState() {
     super.initState();
+    super.initState();
     loadUsername();
     setState(() {
       letsGetDocIds = getDocIds();
     });
-    super.initState();
+    WidgetsBinding.instance.addObserver(this);
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      if (!isGameStart && !isGameOnPause) {
+        togglePause();
+      }
+    }
+  }
 
   Future<void> loadUsername() async {
     String? username = await getUsername();
     setState(() {
       name = username;
     });
+
+    Fluttertoast.showToast(
+      msg: "Welcome back, $name!",
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.green,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
   }
 
   static var randomNumber = Random();
-  int food = randomNumber.nextInt(330);
+  int food = randomNumber.nextInt(580);
 
   late String lastDirection = 'down';
 
   void generateNewFood() {
-    food = randomNumber.nextInt(330);
+    food = randomNumber.nextInt(580);
 
     while (snakePosition.contains(food)) {
-      food = randomNumber.nextInt(330);
+      food = randomNumber.nextInt(580);
     }
   }
 
@@ -83,7 +108,7 @@ class SnakeState extends State<Snake> {
   void submitScore() {
     refreshLeaderboard();
 
-    final score = snakePosition.length;
+    final score = snakePosition.length - 4;
 
     final data = {'name': name, 'score': score};
     FirebaseFirestore.instance.collection('highscores').add(data);
@@ -136,12 +161,8 @@ class SnakeState extends State<Snake> {
 
   void startGame() {
     isGameStart = false;
-    snakePosition = [35, 50, 65, 80];
-    var timeLength = numberOfSquares - snakePosition.length * 2;
-
-    if (timeLength <= 100) {
-      timeLength = 150;
-    }
+    snakePosition = [45, 65, 85, 105];
+    var timeLength = 250;
 
     var duration = Duration(milliseconds: timeLength);
     direction = 'down';
@@ -164,32 +185,32 @@ class SnakeState extends State<Snake> {
     setState(() {
       switch (direction) {
         case 'down':
-          if (snakePosition.last > numberOfSquares - 15) {
-            snakePosition.add(snakePosition.last + 15 - numberOfSquares);
-          } else if (snakePosition.last == numberOfSquares - 15) {
+          if (snakePosition.last > numberOfSquares - rowSize) {
+            snakePosition.add(snakePosition.last + rowSize - numberOfSquares);
+          } else if (snakePosition.last == numberOfSquares - rowSize) {
             snakePosition.add(0);
           } else {
-            snakePosition.add(snakePosition.last + 15);
+            snakePosition.add(snakePosition.last + rowSize);
           }
           break;
         case 'up':
-          if (snakePosition.last < 15) {
-            snakePosition.add(snakePosition.last - 15 + numberOfSquares);
+          if (snakePosition.last < rowSize) {
+            snakePosition.add(snakePosition.last - rowSize + numberOfSquares);
           } else {
-            snakePosition.add(snakePosition.last - 15);
+            snakePosition.add(snakePosition.last - rowSize);
           }
           break;
         case 'left':
-          if (snakePosition.last % 15 == 0) {
-            snakePosition.add(snakePosition.last - 1 + 15);
+          if (snakePosition.last % rowSize == 0) {
+            snakePosition.add(snakePosition.last - 1 + rowSize);
           } else {
             snakePosition.add(snakePosition.last - 1);
           }
           break;
 
         case 'right':
-          if ((snakePosition.last + 1) % 15 == 0) {
-            snakePosition.add(snakePosition.last + 1 - 15);
+          if ((snakePosition.last + 1) % rowSize == 0) {
+            snakePosition.add(snakePosition.last + 1 - rowSize);
           } else {
             snakePosition.add(snakePosition.last + 1);
           }
@@ -231,34 +252,37 @@ class SnakeState extends State<Snake> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return Material(
-          color: Colors.transparent,
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Game Paused',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 35,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 30),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.play_arrow),
-                      iconSize: 125,
-                      color: Colors.green,
-                      onPressed: resume,
+        return WillPopScope(
+          onWillPop: () => Future.value(false),
+          child: Material(
+            color: Colors.transparent,
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Game Paused',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 35,
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                  const SizedBox(height: 30),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.play_arrow),
+                        iconSize: 125,
+                        color: Colors.green,
+                        onPressed: resume,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -267,6 +291,7 @@ class SnakeState extends State<Snake> {
   }
 
   void _showGameOverScreen() {
+    isGameStart = true;
     submitScore();
 
     showDialog(
@@ -286,100 +311,103 @@ class SnakeState extends State<Snake> {
               ),
             ),
           ),
-          child: AlertDialog(
-            title: const Text('Game Over'),
-            content: FutureBuilder(
-              future: letsGetDocIds,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return const Text('Error loading leaderboard.');
-                } else {
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Your score: ',
-                            style: TextStyle(
-                              fontSize: 15,
+          child: WillPopScope(
+            onWillPop: () => Future.value(false),
+            child: AlertDialog(
+              title: const Text('Game Over'),
+              content: FutureBuilder(
+                future: letsGetDocIds,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return const Text('Error loading leaderboard.');
+                  } else {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Your score: ',
+                              style: TextStyle(
+                                fontSize: 15,
+                              ),
                             ),
-                          ),
-                          Text(
-                            snakePosition.length.toString(),
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
+                            Text(
+                              (snakePosition.length - 4).toString(),
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'You positioned ',
-                            style: TextStyle(
-                              fontSize: 15,
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'You positioned: ',
+                              style: TextStyle(
+                                fontSize: 15,
+                              ),
                             ),
-                          ),
-                          Text(
-                            playerPosition.toString(),
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
+                            Text(
+                              playerPosition.toString(),
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 24,
-                      ),
-                      const Text('Top 20 Leaderboard:'),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            height: 350,
-                            child: FutureBuilder(
-                              future: letsGetDocIds,
-                              builder: (context, snapshot) {
-                                return ListView.builder(
-                                  itemCount: 20,
-                                  itemBuilder: (context, index) {
-                                    return HighscoreTile(
-                                        documentId: leaderboardDocIds[index]);
-                                  },
-                                );
-                              },
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 24,
+                        ),
+                        const Text('Top 20 Leaderboard:'),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              height: 350,
+                              child: FutureBuilder(
+                                future: letsGetDocIds,
+                                builder: (context, snapshot) {
+                                  return ListView.builder(
+                                    itemCount: 20,
+                                    itemBuilder: (context, index) {
+                                      return HighscoreTile(
+                                          documentId: leaderboardDocIds[index]);
+                                    },
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  );
-                }
-              },
-            ),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('Play Again'),
-                onPressed: () {
-                  startGame();
-                  Navigator.of(context).pop();
+                          ],
+                        ),
+                      ],
+                    );
+                  }
                 },
               ),
-            ],
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Play Again'),
+                  onPressed: () {
+                    startGame();
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -390,11 +418,14 @@ class SnakeState extends State<Snake> {
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
+    double screenWidth = MediaQuery.of(context).size.width;
+    double desiredHeight = screenWidth / 20 *( 560/20); 
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             const SizedBox(
               height: 10,
@@ -432,7 +463,8 @@ class SnakeState extends State<Snake> {
                 ],
               ),
             ),
-            Expanded(
+            SizedBox(
+              height: desiredHeight,
               child: GestureDetector(
                 onVerticalDragUpdate: (details) {
                   if (direction != 'up' && details.delta.dy > 0) {
@@ -441,78 +473,75 @@ class SnakeState extends State<Snake> {
                       readMove = false;
                     }
                   } else if (direction != 'down' && details.delta.dy < 0) {
-                    // direction = 'up';
                     if (readMove) {
                       direction = 'up';
                       readMove = false;
                     }
                   }
-                  ;
                 },
                 onHorizontalDragUpdate: (details) {
                   if (direction != 'left' && details.delta.dx > 0) {
-                    // direction = 'right';
                     if (readMove) {
                       direction = 'right';
                       readMove = false;
                     }
                   } else if (direction != 'right' && details.delta.dx < 0) {
-                    // direction = 'left';
                     if (readMove) {
                       direction = 'left';
                       readMove = false;
                     }
                   }
-                  ;
                 },
                 child: GridView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: numberOfSquares,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 15),
-                    itemBuilder: (BuildContext context, int index) {
-                      if (snakePosition.last == index) {
-                        return Center(
-                          child: Container(
-                            padding: const EdgeInsets.all(1),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(5),
-                              child: Container(color: Colors.grey[600]),
-                            ),
-                          ),
-                        );
-                      }
-                      if (snakePosition.contains(index)) {
-                        return Center(
-                          child: Container(
-                            padding: const EdgeInsets.all(1),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(5),
-                              child: Container(color: Colors.white),
-                            ),
-                          ),
-                        );
-                      }
-                      if (index == food) {
-                        return Container(
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: numberOfSquares,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: rowSize,
+                  ),
+                  itemBuilder: (BuildContext context, int index) {
+                    if (snakePosition.last == index) {
+                      return Center(
+                        child: Container(
                           padding: const EdgeInsets.all(1),
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(5),
-                            child: Container(
-                              color: Colors.green,
-                            ),
+                            borderRadius: BorderRadius.circular(6),
+                            child: Container(color: Colors.grey[600]),
                           ),
-                        );
-                      } else {
-                        return Container(
+                        ),
+                      );
+                    }
+                    if (snakePosition.contains(index)) {
+                      return Center(
+                        child: Container(
                           padding: const EdgeInsets.all(1),
                           child: ClipRRect(
-                              borderRadius: BorderRadius.circular(5),
-                              child: Container(color: Colors.grey[900])),
-                        );
-                      }
-                    }),
+                            borderRadius: BorderRadius.circular(6),
+                            child: Container(color: Colors.white),
+                          ),
+                        ),
+                      );
+                    }
+                    if (index == food) {
+                      return Container(
+                        padding: const EdgeInsets.all(1),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: Container(
+                            color: Colors.green,
+                          ),
+                        ),
+                      );
+                    } else {
+                      return Container(
+                        padding: const EdgeInsets.all(1),
+                        child:
+                      ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: Container(color: const Color.fromARGB(255, 23, 23, 23)))
+                          );
+                    }
+                  },
+                ),
               ),
             ),
             Padding(
@@ -556,9 +585,6 @@ class SnakeState extends State<Snake> {
                   ),
                 ],
               ),
-            ),
-            const SizedBox(
-              height: 10,
             ),
           ],
         ),

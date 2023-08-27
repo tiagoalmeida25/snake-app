@@ -107,7 +107,7 @@ class SignupState extends State<Signup> {
       msg: "Sign-up successful!",
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
-      backgroundColor: Color.fromARGB(255, 73, 244, 54),
+      backgroundColor: const Color.fromARGB(255, 73, 244, 54),
       textColor: Colors.white,
       fontSize: 16.0,
     );
@@ -122,24 +122,49 @@ class SignupState extends State<Signup> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          const Text(
-            's n a k e game',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 45,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const Text(
-            'Sign-up',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Row(
+              children: const [
+                Text(
+                  'snake',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 45,
+                    fontWeight: FontWeight.bold,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+                Text(
+                  ' game',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 45,
+                  ),
+                )
+              ],
             ),
           ),
           Column(
             children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal:24.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: const [
+                    Text(
+                      'Sign-up',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
               UsernameField(
                 controller: emailController,
                 hintText: 'Email',
@@ -162,10 +187,10 @@ class SignupState extends State<Signup> {
             },
             style: ElevatedButton.styleFrom(
               foregroundColor: Colors.white,
-              backgroundColor: Colors.blue,
+              backgroundColor: Colors.green,
               elevation: 5, // Shadow elevation
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(16),
               ),
               padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
             ),
