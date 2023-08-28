@@ -259,9 +259,10 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
       },
     );
   }
-  
+
   List<String> leaderboardDocIds = [];
   late Future? letsGetDocIds;
+  Map<String, int> highscores = {};
 
   void refreshLeaderboard() {
     setState(() {
@@ -275,16 +276,36 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
         .orderBy('score', descending: true)
         .get();
 
+    Map<String, int> updatedHighscores = {};
+
+    for (QueryDocumentSnapshot docSnapshot in querySnapshot.docs) {
+      Map<String, dynamic> data = docSnapshot.data() as Map<String, dynamic>;
+
+      String? user = data['name'];
+      int? score = data['score'];
+
+      if (user != null && score != null) {
+        if (updatedHighscores.containsKey(user)) {
+          if (updatedHighscores[user]! < score) {
+            updatedHighscores[user] = score;
+          }
+        } else {
+          updatedHighscores[user] = score;
+        }
+      }
+    }
+
     setState(() {
+      highscores = updatedHighscores;
       leaderboardDocIds = querySnapshot.docs.map((doc) => doc.id).toList();
     });
   }
 
   void submitScore() {
-    refreshLeaderboard();
-
     final data = {'name': name, 'score': score};
+
     FirebaseFirestore.instance.collection('highscores').add(data);
+    refreshLeaderboard();
 
     FirebaseFirestore.instance
         .collection("highscores")
@@ -302,7 +323,6 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
       },
     );
   }
-
 
   void _showGameOverScreen() {
     isGameStart = false;
@@ -335,6 +355,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const CircularProgressIndicator();
                   } else if (snapshot.hasError) {
+                    print(snapshot.error);
                     return const Text('Error loading leaderboard.');
                   } else {
                     return Column(
@@ -402,17 +423,19 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                           children: [
                             SizedBox(
                               height: 350,
-                              child: FutureBuilder(
-                                future: letsGetDocIds,
-                                builder: (context, snapshot) {
-                                  return ListView.builder(
-                                    itemCount: 20,
-                                    itemBuilder: (context, index) {
-                                      return HighscoreTile(
-                                          documentId: leaderboardDocIds[index],
-                                          name: name,
-                                          score: score);
-                                    },
+                              child: ListView.builder(
+                                itemCount:
+                                    highscores.length, 
+                                itemBuilder: (context, index) {
+                                  String user =
+                                      highscores.keys.elementAt(index);
+                                  int highscore = highscores[user]!;
+
+                                  return HighscoreTile(
+                                    name: user,
+                                    highscore: highscore,
+                                    username: name,
+                                    score: score,
                                   );
                                 },
                               ),
