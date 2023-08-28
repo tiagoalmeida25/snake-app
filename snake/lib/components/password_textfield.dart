@@ -50,6 +50,7 @@ class PasswordFieldState extends State<PasswordField> {
             },
             child: Icon(
               _passwordVisible ? Icons.visibility : Icons.visibility_off,
+              color: Colors.green,
             ),
           ),
         ),

@@ -15,25 +15,49 @@ class Snake extends StatefulWidget {
 }
 
 class SnakeState extends State<Snake> with WidgetsBindingObserver {
-  static List<int> snakePosition = [45, 65, 85, 105];
-  int numberOfSquares = 580;
-  int rowSize = 20;
-  final nameController = TextEditingController();
+  int numberOfSquares = 704;
+  int rowSize = 22;
+
+  static List<int> snakePosition = [76, 98, 120, 142];
+
+  bool readMove = true;
   bool isGameStart = true;
   bool isGameOnPause = false;
-  bool readMove = true;
-  int playerPosition = 0;
+  bool isPoison = false;
+
   String? name;
+  int playerPosition = 0;
+  int score = 0;
+
+  String reasonForGameOver = '';
+
+  static var randomNumber = Random();
+  int food = randomNumber.nextInt(702);
+  int poison = randomNumber.nextInt(702);
 
   @override
   void initState() {
-    super.initState();
     super.initState();
     loadUsername();
     setState(() {
       letsGetDocIds = getDocIds();
     });
     WidgetsBinding.instance.addObserver(this);
+  }
+
+  void generateNewFood() {
+    if (isPoison) {
+      poison = randomNumber.nextInt(702);
+
+      while (snakePosition.contains(poison)) {
+        poison = randomNumber.nextInt(702);
+      }
+    }
+
+    food = randomNumber.nextInt(702);
+    while (snakePosition.contains(food)) {
+      food = randomNumber.nextInt(702);
+    }
   }
 
   @override
@@ -67,19 +91,6 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     );
   }
 
-  static var randomNumber = Random();
-  int food = randomNumber.nextInt(580);
-
-  late String lastDirection = 'down';
-
-  void generateNewFood() {
-    food = randomNumber.nextInt(580);
-
-    while (snakePosition.contains(food)) {
-      food = randomNumber.nextInt(580);
-    }
-  }
-
   void signoff() async {
     await FirebaseAuth.instance.signOut();
     Navigator.of(context).pushReplacementNamed('/auth');
@@ -105,75 +116,24 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     return null;
   }
 
-  void submitScore() {
-    refreshLeaderboard();
-
-    final score = snakePosition.length - 4;
-
-    final data = {'name': name, 'score': score};
-    FirebaseFirestore.instance.collection('highscores').add(data);
-
-    FirebaseFirestore.instance
-        .collection("highscores")
-        .orderBy('score', descending: true)
-        .get()
-        .then(
-      (value) {
-        value.docs.asMap().forEach(
-          (index, element) {
-            if (element.data()['score'] == score) {
-              playerPosition = index + 1;
-            }
-          },
-        );
-      },
-    );
-
-    Fluttertoast.showToast(
-      msg: 'Score submitted!',
-      toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: Colors.green,
-      textColor: Colors.white,
-      fontSize: 16.0,
-    );
-  }
-
-  List<String> leaderboardDocIds = [];
-  late Future? letsGetDocIds;
-
-  void refreshLeaderboard() {
-    setState(() {
-      letsGetDocIds = getDocIds();
-    });
-  }
-
-  Future<void> getDocIds() async {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('highscores')
-        .orderBy('score', descending: true)
-        .get();
-
-    setState(() {
-      leaderboardDocIds = querySnapshot.docs.map((doc) => doc.id).toList();
-    });
-  }
-
   void startGame() {
     isGameStart = false;
-    snakePosition = [45, 65, 85, 105];
-    var timeLength = 250;
+    snakePosition = [76, 98, 120, 142];
+    var timeLength = 175;
 
     var duration = Duration(milliseconds: timeLength);
     direction = 'down';
 
     Timer.periodic(duration, (Timer timer) {
+      score = snakePosition.length - 4;
       if (gameOver()) {
         timer.cancel();
+        submitScore();
         _showGameOverScreen();
       } else {
         if (!isGameOnPause) {
           readMove = true;
+
           updateSnake();
         }
       }
@@ -187,8 +147,6 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
         case 'down':
           if (snakePosition.last > numberOfSquares - rowSize) {
             snakePosition.add(snakePosition.last + rowSize - numberOfSquares);
-          } else if (snakePosition.last == numberOfSquares - rowSize) {
-            snakePosition.add(0);
           } else {
             snakePosition.add(snakePosition.last + rowSize);
           }
@@ -219,6 +177,11 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
         default:
       }
       if (snakePosition.last == food) {
+        if (snakePosition.length % 10 == 0 && !isPoison) {
+          isPoison = true;
+        } else if (isPoison && (snakePosition.length - 4) % 10 == 0) {
+          isPoison = false;
+        }
         generateNewFood();
       } else {
         snakePosition.removeAt(0);
@@ -234,9 +197,16 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
           count += 1;
         }
         if (count == 2) {
+          reasonForGameOver = 'You ran into yourself!';
           return true;
         }
       }
+    }
+
+    if (isPoison && snakePosition.last == poison) {
+      isPoison = false;
+      reasonForGameOver = 'You ate the poison!';
+      return true;
     }
     return false;
   }
@@ -289,13 +259,57 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
       },
     );
   }
+  
+  List<String> leaderboardDocIds = [];
+  late Future? letsGetDocIds;
+
+  void refreshLeaderboard() {
+    setState(() {
+      letsGetDocIds = getDocIds();
+    });
+  }
+
+  Future<void> getDocIds() async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('highscores')
+        .orderBy('score', descending: true)
+        .get();
+
+    setState(() {
+      leaderboardDocIds = querySnapshot.docs.map((doc) => doc.id).toList();
+    });
+  }
+
+  void submitScore() {
+    refreshLeaderboard();
+
+    final data = {'name': name, 'score': score};
+    FirebaseFirestore.instance.collection('highscores').add(data);
+
+    FirebaseFirestore.instance
+        .collection("highscores")
+        .orderBy('score', descending: true)
+        .get()
+        .then(
+      (value) {
+        value.docs.asMap().forEach(
+          (index, element) {
+            if (element.data()['score'] == score) {
+              playerPosition = index + 1;
+            }
+          },
+        );
+      },
+    );
+  }
+
 
   void _showGameOverScreen() {
-    isGameStart = true;
-    submitScore();
+    isGameStart = false;
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return Theme(
           data: ThemeData(
@@ -326,6 +340,16 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                     return Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        Text(
+                          reasonForGameOver,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -336,7 +360,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                               ),
                             ),
                             Text(
-                              (snakePosition.length - 4).toString(),
+                              score.toString(),
                               style: const TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
@@ -345,7 +369,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                           ],
                         ),
                         const SizedBox(
-                          height: 10,
+                          height: 3,
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -366,7 +390,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                           ],
                         ),
                         const SizedBox(
-                          height: 24,
+                          height: 10,
                         ),
                         const Text('Top 20 Leaderboard:'),
                         const SizedBox(
@@ -385,7 +409,9 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                                     itemCount: 20,
                                     itemBuilder: (context, index) {
                                       return HighscoreTile(
-                                          documentId: leaderboardDocIds[index]);
+                                          documentId: leaderboardDocIds[index],
+                                          name: name,
+                                          score: score);
                                     },
                                   );
                                 },
@@ -406,6 +432,12 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                     Navigator.of(context).pop();
                   },
                 ),
+                TextButton(
+                  child: const Text('Close'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
               ],
             ),
           ),
@@ -419,7 +451,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
     double screenWidth = MediaQuery.of(context).size.width;
-    double desiredHeight = screenWidth / 20 *( 560/20); 
+    double desiredHeight = screenWidth * (560 / 20) / 20;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -463,84 +495,108 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                 ],
               ),
             ),
-            SizedBox(
-              height: desiredHeight,
-              child: GestureDetector(
-                onVerticalDragUpdate: (details) {
-                  if (direction != 'up' && details.delta.dy > 0) {
-                    if (readMove) {
-                      direction = 'down';
-                      readMove = false;
-                    }
-                  } else if (direction != 'down' && details.delta.dy < 0) {
-                    if (readMove) {
-                      direction = 'up';
-                      readMove = false;
-                    }
-                  }
-                },
-                onHorizontalDragUpdate: (details) {
-                  if (direction != 'left' && details.delta.dx > 0) {
-                    if (readMove) {
-                      direction = 'right';
-                      readMove = false;
-                    }
-                  } else if (direction != 'right' && details.delta.dx < 0) {
-                    if (readMove) {
-                      direction = 'left';
-                      readMove = false;
-                    }
-                  }
-                },
-                child: GridView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: numberOfSquares,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: rowSize,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: SizedBox(
+                height: desiredHeight,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    color: Colors.grey[800],
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    child: GestureDetector(
+                      onVerticalDragUpdate: (details) {
+                        if (direction != 'up' && details.delta.dy > 0) {
+                          if (readMove) {
+                            direction = 'down';
+                            readMove = false;
+                          }
+                        } else if (direction != 'down' &&
+                            details.delta.dy < 0) {
+                          if (readMove) {
+                            direction = 'up';
+                            readMove = false;
+                          }
+                        }
+                      },
+                      onHorizontalDragUpdate: (details) {
+                        if (direction != 'left' && details.delta.dx > 0) {
+                          if (readMove) {
+                            direction = 'right';
+                            readMove = false;
+                          }
+                        } else if (direction != 'right' &&
+                            details.delta.dx < 0) {
+                          if (readMove) {
+                            direction = 'left';
+                            readMove = false;
+                          }
+                        }
+                      },
+                      child: GridView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: numberOfSquares,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: rowSize,
+                        ),
+                        itemBuilder: (BuildContext context, int index) {
+                          if (snakePosition.last == index) {
+                            return Center(
+                              child: Container(
+                                padding: const EdgeInsets.all(1),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(6),
+                                  child: Container(color: Colors.white),
+                                ),
+                              ),
+                            );
+                          }
+                          if (snakePosition.contains(index)) {
+                            return Center(
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: Container(color: Colors.white),
+                                ),
+                              ),
+                            );
+                          }
+                          if (isPoison && index == poison) {
+                            return Container(
+                              padding: const EdgeInsets.all(2),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Container(
+                                  color: Colors.green[400],
+                                ),
+                              ),
+                            );
+                          }
+                          if (index == food) {
+                            return Container(
+                              padding: const EdgeInsets.all(2),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Container(
+                                  color: Colors.green,
+                                ),
+                              ),
+                            );
+                          } else {
+                            return Container(
+                              padding: const EdgeInsets.all(2),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: Container(color: Colors.grey[800]),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ),
                   ),
-                  itemBuilder: (BuildContext context, int index) {
-                    if (snakePosition.last == index) {
-                      return Center(
-                        child: Container(
-                          padding: const EdgeInsets.all(1),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(6),
-                            child: Container(color: Colors.grey[600]),
-                          ),
-                        ),
-                      );
-                    }
-                    if (snakePosition.contains(index)) {
-                      return Center(
-                        child: Container(
-                          padding: const EdgeInsets.all(1),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(6),
-                            child: Container(color: Colors.white),
-                          ),
-                        ),
-                      );
-                    }
-                    if (index == food) {
-                      return Container(
-                        padding: const EdgeInsets.all(1),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(6),
-                          child: Container(
-                            color: Colors.green,
-                          ),
-                        ),
-                      );
-                    } else {
-                      return Container(
-                        padding: const EdgeInsets.all(1),
-                        child:
-                      ClipRRect(
-                          borderRadius: BorderRadius.circular(6),
-                          child: Container(color: const Color.fromARGB(255, 23, 23, 23)))
-                          );
-                    }
-                  },
                 ),
               ),
             ),
@@ -553,18 +609,23 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                   GestureDetector(
                     onTap: isGameStart ? startGame : togglePause,
                     child: isGameStart
-                        ? const Text(
-                            'start',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 25,
-                                fontWeight: FontWeight.bold),
+                        ? Column(
+                            children: const [
+                              Text(
+                                'start',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                '',
+                                style: TextStyle(fontSize: 20),
+                              )
+                            ],
                           )
                         : Column(
                             children: <Widget>[
-                              const SizedBox(
-                                height: 10,
-                              ),
                               const Text(
                                 'pause',
                                 style: TextStyle(
@@ -574,7 +635,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                                 ),
                               ),
                               Text(
-                                'score: ${snakePosition.length}',
+                                'score: $score',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,

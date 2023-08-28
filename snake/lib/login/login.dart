@@ -73,10 +73,10 @@ class LoginState extends State<Login> {
     }
 
     Fluttertoast.showToast(
-      msg: "Welcome back,  ${username}",
+      msg: "Welcome back,  $username!",
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
-      backgroundColor: Colors.red,
+      backgroundColor: Colors.green,
       textColor: Colors.white,
       fontSize: 16.0,
     );
@@ -151,13 +151,26 @@ class LoginState extends State<Login> {
                       onTap: () {
                         Navigator.pushNamed(context, '/signup');
                       },
-                      child: const Text(
-                        'Create your account here!',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                          decoration: TextDecoration.underline,
-                        ),
+                      child: Row(
+                        children:const  [
+                           Text(
+                            'Create your account ',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            'here!',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              decoration: TextDecoration.underline,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],

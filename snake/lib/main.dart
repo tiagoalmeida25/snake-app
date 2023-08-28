@@ -32,9 +32,9 @@ class MainApp extends StatelessWidget {
       initialRoute: '/auth',
       routes: {
         '/auth': (context) => const AuthPage(),
-        '/username': (context) =>  Login(),
-        '/snake': (context) => Snake(),
-        '/signup': (context) => Signup(),
+        '/username': (context) => const Login(),
+        '/snake': (context) => const Snake(),
+        '/signup': (context) => const Signup(),
       },
     );
   }
