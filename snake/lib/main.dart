@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:snake/login/auth.dart';
 import 'package:snake/login/signup.dart';
 import 'package:snake/login/login.dart';
+import 'package:snake/settings.dart';
 import 'package:snake/snake.dart';
 import 'firebase_options.dart';
 
@@ -35,6 +36,7 @@ class MainApp extends StatelessWidget {
         '/username': (context) => const Login(),
         '/snake': (context) => const Snake(),
         '/signup': (context) => const Signup(),
+        '/settings': (context) => const SnakeSettings(),
       },
     );
   }

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:snake/components/password_textfield.dart';
 import 'package:snake/components/username_textfield.dart';
+import 'package:flutter/services.dart';
+
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
@@ -117,6 +119,8 @@ class SignupState extends State<Signup> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Column(
