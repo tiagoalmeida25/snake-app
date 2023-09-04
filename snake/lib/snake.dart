@@ -575,6 +575,8 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   }
 
   void togglePause() {
+    if(isGameStart) return;
+    
     isGameOnPause = true;
     showDialog(
       context: context,
