@@ -61,15 +61,15 @@ class SnakeSettingsState extends State<SnakeSettings> {
   Color getColorFromString(String colorString) {
     switch (colorString) {
       case 'green':
-        return Colors.green;
+        return const Color.fromARGB(255, 46, 133, 49);
       case 'red':
-        return Colors.red;
+        return const Color.fromARGB(255, 223, 26, 12);
       case 'blue':
         return Colors.blue;
       case 'purple':
-        return Colors.purple;
+        return const Color.fromARGB(255, 158, 17, 183);
       case 'pink':
-        return Colors.pink;
+        return const Color.fromARGB(255, 237, 14, 174);
       case 'orange':
         return Colors.orange;
       case 'yellow':
@@ -82,22 +82,26 @@ class SnakeSettingsState extends State<SnakeSettings> {
         return Colors.grey;
       case 'white':
         return Colors.white;
+      case 'grey[900]':
+        return const Color.fromRGBO(33, 33, 33, 1);
+      case 'grey[600]':
+        return const Color.fromRGBO(117, 117, 117, 1);
+      case 'grey[400]':
+        return const Color.fromRGBO(224, 224, 224, 1);
       case 'grey[700]':
         return const Color.fromRGBO(66, 66, 66, 1);
       case 'grey[100]':
         return const Color.fromRGBO(238, 238, 238, 1);
       case 'green[100]':
-        return const Color.fromRGBO(129, 199, 132, 1);
+        return const Color.fromRGBO(200, 230, 201, 1);
       case 'red[100]':
-        return const Color.fromRGBO(229, 115, 115, 1);
+        return const Color.fromRGBO(255, 205, 210, 1);
       case 'blue[100]':
-        return const Color.fromRGBO(100, 181, 246, 1);
+        return const Color.fromRGBO(187, 222, 251, 1);
       case 'yellow[100]':
-        return const Color.fromRGBO(255, 241, 118, 1);
+        return const Color.fromRGBO(255, 249, 196, 1);
       case 'orange[100]':
-        return const Color.fromRGBO(255, 204, 128, 1);
-      case 'grey[600]':
-        return const Color.fromRGBO(117, 117, 117, 1);
+        return const Color.fromRGBO(255, 224, 178, 1);
       case 'red[800]':
         return const Color.fromRGBO(198, 40, 40, 1);
       case 'orange[800]':
@@ -121,6 +125,7 @@ class SnakeSettingsState extends State<SnakeSettings> {
         MaterialStateProperty.resolveWith<Color?>(
       (Set<MaterialState> states) {
         if (states.contains(MaterialState.selected)) {
+          if(foodColor == Colors.black) return Colors.grey[800];
           return foodColor;
         }
         if (states.contains(MaterialState.disabled)) {
@@ -150,9 +155,9 @@ class SnakeSettingsState extends State<SnakeSettings> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Row(
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
                     'Settings',
                     style: TextStyle(
@@ -164,9 +169,9 @@ class SnakeSettingsState extends State<SnakeSettings> {
                 ],
               ),
               const SizedBox(height: 10),
-              Row(
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
                     'Choose Field Color:',
                     style: TextStyle(
@@ -177,20 +182,15 @@ class SnakeSettingsState extends State<SnakeSettings> {
                 ],
               ),
               SizedBox(
-                height: 125,
+                height: 75,
                 child: BlockPicker(
                   pickerColor: fieldColor,
                   availableColors: const [
                     Colors.black,
-                    Color.fromRGBO(66, 66, 66, 1),
-                    Colors.grey,
-                    Color.fromRGBO(238, 238, 238, 1),
+                    Color.fromRGBO(33, 33, 33, 1),
+                    Color.fromRGBO(117, 117, 117, 1),
+                    Color.fromRGBO(224, 224, 224, 1),
                     Colors.white,
-                    Color.fromRGBO(255, 205, 210, 1),
-                    Color.fromRGBO(255, 224, 178, 1),
-                    Color.fromRGBO(255, 249, 196, 1),
-                    Color.fromRGBO(200, 230, 201, 1),
-                    Color.fromRGBO(187, 222, 251, 1),
                   ],
                   onColorChanged: (color) {
                     setState(() => fieldColor = color);
@@ -201,10 +201,10 @@ class SnakeSettingsState extends State<SnakeSettings> {
                       shrinkWrap: true,
                       gridDelegate:
                           const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 80,
+                        maxCrossAxisExtent: 65,
                         mainAxisExtent: 60,
                         childAspectRatio: 1.0,
-                        crossAxisSpacing: 2,
+                        crossAxisSpacing: 15,
                         mainAxisSpacing: 2,
                       ),
                       children: [for (Color color in colors) child(color)],
@@ -212,10 +212,10 @@ class SnakeSettingsState extends State<SnakeSettings> {
                   },
                 ),
               ),
-              const SizedBox(height: 20),
-              Row(
+              // const SizedBox(height: 10),
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
                     'Choose Snake Color:',
                     style: TextStyle(
@@ -226,7 +226,7 @@ class SnakeSettingsState extends State<SnakeSettings> {
                 ],
               ),
               SizedBox(
-                height: 125,
+                height: 135,
                 child: BlockPicker(
                   pickerColor: snakeColor,
                   availableColors: const [
@@ -250,10 +250,10 @@ class SnakeSettingsState extends State<SnakeSettings> {
                       shrinkWrap: true,
                       gridDelegate:
                           const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 80,
+                        maxCrossAxisExtent: 65,
                         mainAxisExtent: 60,
                         childAspectRatio: 1.0,
-                        crossAxisSpacing: 2,
+                        crossAxisSpacing: 15,
                         mainAxisSpacing: 2,
                       ),
                       children: [for (Color color in colors) child(color)],
@@ -261,10 +261,10 @@ class SnakeSettingsState extends State<SnakeSettings> {
                   },
                 ),
               ),
-              const SizedBox(height: 20),
-              Row(
+              const SizedBox(height: 10),
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
                     'Choose Food Color:',
                     style: TextStyle(
@@ -275,18 +275,20 @@ class SnakeSettingsState extends State<SnakeSettings> {
                 ],
               ),
               SizedBox(
-                height: 125,
+                height: 135,
                 child: BlockPicker(
                   pickerColor: foodColor,
                   availableColors: const [
-                    Colors.purple,
-                    Colors.pink,
-                    Colors.red,
+                    Colors.black,
+                    Color.fromARGB(255, 158, 17, 183),
+                    Color.fromARGB(255, 237, 14, 174),
+                    Color.fromARGB(255, 223, 26, 12),
                     Colors.orange,
                     Colors.yellow,
                     Colors.blue,
                     Colors.teal,
-                    Colors.green,
+                    Color.fromARGB(255, 46, 133, 49),
+                    Colors.white
                   ],
                   onColorChanged: (color) {
                     setState(() => foodColor = color);
@@ -297,10 +299,10 @@ class SnakeSettingsState extends State<SnakeSettings> {
                       shrinkWrap: true,
                       gridDelegate:
                           const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 90,
+                        maxCrossAxisExtent: 65,
                         mainAxisExtent: 60,
                         childAspectRatio: 1.0,
-                        crossAxisSpacing: 2,
+                        crossAxisSpacing: 15,
                         mainAxisSpacing: 2,
                       ),
                       children: [for (Color color in colors) child(color)],
@@ -308,7 +310,7 @@ class SnakeSettingsState extends State<SnakeSettings> {
                   },
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -340,7 +342,7 @@ class SnakeSettingsState extends State<SnakeSettings> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -367,23 +369,32 @@ class SnakeSettingsState extends State<SnakeSettings> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(100, 50),
-                  foregroundColor: Colors.white,
-                  backgroundColor: foodColor,
+                  backgroundColor: foodColor == Colors.black ? Colors.grey[800] : foodColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16.0),
                   ),
+                ).copyWith(
+                  foregroundColor: MaterialStateProperty.all<Color>(
+                    foodColor == Colors.white  ? Colors.black : Colors.white,
+                  ),
                 ),
                 onPressed: () {
-                  Navigator.pop(
-                      context, [fieldColor, snakeColor, foodColor, dropdownSpeed, isGrid]);
+                  Navigator.pop(context, [
+                    fieldColor,
+                    snakeColor,
+                    foodColor,
+                    dropdownSpeed,
+                    isGrid
+                  ]);
                 },
                 child: const Text('Back', style: TextStyle(fontSize: 20)),
               ),
-              const SizedBox(height: 10),
+
+              const SizedBox(height: 20),
             ],
           ),
         ),

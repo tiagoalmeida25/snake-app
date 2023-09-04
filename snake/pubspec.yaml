@@ -10,16 +10,21 @@ dependencies:
   cloud_firestore: ^4.8.5
   firebase_core: ^2.15.1
   firebase_auth: ^4.8.0
-  google_fonts: ^2.1.0 
+  google_fonts: ^5.1.0 
   fluttertoast: ^8.2.2
   flutter_colorpicker: ^1.0.3
   shared_preferences: ^2.2.0
-  flutter_launcher_icons: "^0.9.0"
+  flutter_launcher_icons: ^0.13.1
   flutter:
     sdk: flutter
+  google_sign_in: ^6.1.4
+  audioplayers: ^5.1.0
+  google_nav_bar: ^5.0.6
+  
+
 
 flutter_icons:
-  image_path: "icon/2.png" 
+  image_path: "icon/snake.png" 
   android: true
   ios: true
 
@@ -31,3 +36,10 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
+  assets:
+  - lib/images/
+  - assets/nhamnham.wav
+  - assets/ai.wav
+  - assets/blah.wav
+  - assets/ew.wav
+  - assets/gameover.wav

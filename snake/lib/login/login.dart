@@ -5,7 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:snake/components/password_textfield.dart';
 import 'package:snake/components/username_textfield.dart';
 import 'package:flutter/services.dart';
-
+import 'package:snake/services/auth_service.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -95,11 +95,11 @@ class LoginState extends State<Login> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.0),
             child: Row(
-              children:const [
-                 Text(
+              children: [
+                Text(
                   'snake',
                   style: TextStyle(
                     color: Colors.white,
@@ -108,22 +108,22 @@ class LoginState extends State<Login> {
                     fontStyle: FontStyle.italic,
                   ),
                 ),
-                 Text(
+                Text(
                   ' game',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 45,
                   ),
-                 )
+                )
               ],
             ),
           ),
           Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.0),
                 child: Row(
-                  children: const [
+                  children: [
                     Text(
                       'Login',
                       style: TextStyle(
@@ -155,9 +155,9 @@ class LoginState extends State<Login> {
                       onTap: () {
                         Navigator.pushNamed(context, '/signup');
                       },
-                      child: Row(
-                        children:const  [
-                           Text(
+                      child: const Row(
+                        children: [
+                          Text(
                             'Create your account ',
                             style: TextStyle(
                               color: Colors.white,
@@ -180,6 +180,46 @@ class LoginState extends State<Login> {
                   ],
                 ),
               ),
+              const SizedBox(height: 25),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Divider(thickness: 0.5, color: Colors.grey[400]),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Text('Or continue with',
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                    Expanded(
+                      child: Divider(thickness: 0.5, color: Colors.grey[400]),
+                    )
+                  ],
+                ),
+              ),
+
+              const SizedBox(
+                height: 20,
+              ),
+
+              GestureDetector(
+                onTap: () => {AuthService().signInWithGoogle()},
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white),
+                    borderRadius: BorderRadius.circular(50),
+                    color: const Color.fromARGB(62, 232, 232, 232),
+                  ),
+                  child: Image.asset(
+                    'lib/images/google.png',
+                    height: 30,
+                  ),
+                ),
+              )
             ],
           ),
           ElevatedButton(
@@ -195,9 +235,9 @@ class LoginState extends State<Login> {
               ),
               padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
             ),
-            child: Row(
+            child: const Row(
               mainAxisSize: MainAxisSize.min,
-              children: const [
+              children: [
                 Icon(Icons.play_arrow),
                 SizedBox(width: 10),
                 Text(

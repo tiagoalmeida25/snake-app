@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:snake/leaderboard.dart';
 import 'package:snake/login/auth.dart';
 import 'package:snake/login/signup.dart';
 import 'package:snake/login/login.dart';
@@ -37,6 +38,7 @@ class MainApp extends StatelessWidget {
         '/snake': (context) => const Snake(),
         '/signup': (context) => const Signup(),
         '/settings': (context) => const SnakeSettings(),
+        '/leaderboard': (context) => const Leaderboard(score: 0, username: '',),
       },
     );
   }

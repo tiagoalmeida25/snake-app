@@ -5,8 +5,9 @@ class HighscoreTile extends StatelessWidget {
   final int? highscore;
   final String? username;
   final int? score;
+  final double fontSize;
 
-  const HighscoreTile({Key? key, required this.name, required this.highscore, required this.username, required this.score})
+  const HighscoreTile({Key? key, required this.name, required this.highscore, required this.username, required this.score, this.fontSize = 16})
       : super(key: key);
 
   @override
@@ -24,11 +25,11 @@ class HighscoreTile extends StatelessWidget {
               children: [
                 Text(
                   name!,
-                  style: TextStyle(fontSize: 16, color: name == username ? Colors.black : Colors.white),
+                  style: TextStyle(fontSize: fontSize, color: name == username ? Colors.black : Colors.white),
                 ),
                 Text(
                   highscore.toString(),
-                  style: TextStyle(fontSize: 16, color: name == username ? Colors.black : Colors.white),
+                  style: TextStyle(fontSize: fontSize, color: name == username ? Colors.black : Colors.white),
                 ),
               ],
             ),

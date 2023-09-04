@@ -5,12 +5,11 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:snake/components/password_textfield.dart';
 import 'package:snake/components/username_textfield.dart';
 import 'package:flutter/services.dart';
-
+import 'package:snake/services/auth_service.dart';
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
 
-  
   @override
   State<Signup> createState() => SignupState();
 }
@@ -46,20 +45,19 @@ class SignupState extends State<Signup> {
         return;
       }
 
+      userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+              email: emailController.text.trim(),
+              password: passwordController.text);
 
-      userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailController.text.trim(),
-          password: passwordController.text);
-      
       await FirebaseFirestore.instance
           .collection('user')
           .doc(userCredential.user?.uid)
           .set({
         'username': usernameController.text,
       });
-      
+
       Navigator.pop(context);
-      
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
         Fluttertoast.showToast(
@@ -104,7 +102,6 @@ class SignupState extends State<Signup> {
       return;
     }
 
-
     Fluttertoast.showToast(
       msg: "Sign-up successful!",
       toastLength: Toast.LENGTH_SHORT,
@@ -126,10 +123,10 @@ class SignupState extends State<Signup> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.0),
             child: Row(
-              children: const [
+              children: [
                 Text(
                   'snake',
                   style: TextStyle(
@@ -151,18 +148,17 @@ class SignupState extends State<Signup> {
           ),
           Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal:24.0),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
                       'Sign-up',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 30,
                         fontWeight: FontWeight.bold,
-                        
                       ),
                     ),
                   ],
@@ -185,6 +181,43 @@ class SignupState extends State<Signup> {
               ),
             ],
           ),
+          const SizedBox(height: 25),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 25.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Divider(thickness: 0.5, color: Colors.grey[400]),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10.0),
+                  child: Text('Or continue with',
+                      style: TextStyle(color: Colors.white)),
+                ),
+                Expanded(
+                  child: Divider(thickness: 0.5, color: Colors.grey[400]),
+                )
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          GestureDetector(
+            onTap: () => {AuthService().signInWithGoogle()},
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white),
+                borderRadius: BorderRadius.circular(50),
+                color: const Color.fromARGB(62, 232, 232, 232),
+              ),
+              child: Image.asset(
+                'lib/images/google.png',
+                height: 30,
+              ),
+            ),
+          ),
           ElevatedButton(
             onPressed: () {
               registerUser();
@@ -198,9 +231,9 @@ class SignupState extends State<Signup> {
               ),
               padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
             ),
-            child: Row(
+            child: const Row(
               mainAxisSize: MainAxisSize.min,
-              children: const [
+              children: [
                 Icon(Icons.play_arrow),
                 SizedBox(width: 10),
                 Text(
@@ -214,7 +247,5 @@ class SignupState extends State<Signup> {
         ],
       ),
     );
-
   }
 }
-
