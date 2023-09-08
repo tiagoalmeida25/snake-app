@@ -16,16 +16,27 @@ class CustomBlockPicker extends StatefulWidget {
   CustomBlockPickerState createState() => CustomBlockPickerState();
 }
 
+
 class CustomBlockPickerState extends State<CustomBlockPicker> {
+  final int crossAxisCount = 5;
+  final double blockSize = 45.0; 
+  final double spacingFactor = 0.15; 
+
+  double get crossAxisSpacing =>
+      (MediaQuery.of(context).size.width - (crossAxisCount * blockSize)) /
+      ((crossAxisCount - 1) + (crossAxisCount * spacingFactor));
+
+  double get mainAxisSpacing => blockSize * spacingFactor;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 5,
-          crossAxisSpacing: 25.0,
-          mainAxisSpacing: 15.0,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxisCount,
+          crossAxisSpacing: crossAxisSpacing,
+          mainAxisSpacing: mainAxisSpacing,
         ),
         itemBuilder: (context, index) {
           final pickedColor = widget.availableColors[index];
@@ -38,8 +49,8 @@ class CustomBlockPickerState extends State<CustomBlockPicker> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(50),
                   child: Container(
-                    width: 50.0,
-                    height: 60.0,
+                    width: blockSize,
+                    height: blockSize + 10, // Adjust this value as needed
                     color: pickedColor,
                   ),
                 ),

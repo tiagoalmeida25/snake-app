@@ -182,44 +182,44 @@ class LoginState extends State<Login> {
               ),
               const SizedBox(height: 25),
 
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Divider(thickness: 0.5, color: Colors.grey[400]),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Text('Or continue with',
-                          style: TextStyle(color: Colors.white)),
-                    ),
-                    Expanded(
-                      child: Divider(thickness: 0.5, color: Colors.grey[400]),
-                    )
-                  ],
-                ),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(horizontal: 25.0),
+              //   child: Row(
+              //     children: [
+              //       Expanded(
+              //         child: Divider(thickness: 0.5, color: Colors.grey[400]),
+              //       ),
+              //       const Padding(
+              //         padding: EdgeInsets.symmetric(horizontal: 10.0),
+              //         child: Text('Or continue with',
+              //             style: TextStyle(color: Colors.white)),
+              //       ),
+              //       Expanded(
+              //         child: Divider(thickness: 0.5, color: Colors.grey[400]),
+              //       )
+              //     ],
+              //   ),
+              // ),
 
-              const SizedBox(
-                height: 20,
-              ),
+              // const SizedBox(
+              //   height: 20,
+              // ),
 
-              GestureDetector(
-                onTap: () => {AuthService().signInWithGoogle()},
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white),
-                    borderRadius: BorderRadius.circular(50),
-                    color: const Color.fromARGB(62, 232, 232, 232),
-                  ),
-                  child: Image.asset(
-                    'lib/images/google.png',
-                    height: 30,
-                  ),
-                ),
-              )
+              // GestureDetector(
+              //   onTap: () => {AuthService().signInWithGoogle()},
+              //   child: Container(
+              //     padding: const EdgeInsets.all(10),
+              //     decoration: BoxDecoration(
+              //       border: Border.all(color: Colors.white),
+              //       borderRadius: BorderRadius.circular(50),
+              //       color: const Color.fromARGB(62, 232, 232, 232),
+              //     ),
+              //     child: Image.asset(
+              //       'lib/images/google.png',
+              //       height: 30,
+              //     ),
+              //   ),
+              // )
             ],
           ),
           ElevatedButton(

@@ -372,8 +372,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
           gridColor = const Color.fromARGB(153, 148, 147, 147);
         } else if (fieldColor == const Color.fromRGBO(224, 224, 224, 1)) {
           gridColor = const Color.fromARGB(153, 255, 255, 255);
-        }
-        else if (fieldColor == Colors.white) {
+        } else if (fieldColor == Colors.white) {
           gridColor = const Color.fromARGB(153, 230, 230, 230);
         }
       } else {
@@ -575,8 +574,8 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   }
 
   void togglePause() {
-    if(isGameStart) return;
-    
+    if (isGameStart) return;
+
     isGameOnPause = true;
     showDialog(
       context: context,
@@ -623,7 +622,6 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   List<String> leaderboardDocIds = [];
   late Future? letsGetDocIds;
   Map<String, int> highscores = {};
-  Map<String, int> allTimeHighscores = {};
 
   void refreshLeaderboard() {
     setState(() {
@@ -656,33 +654,9 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
       }
     }
 
-    QuerySnapshot qrySnapshot = await FirebaseFirestore.instance
-        .collection('highscores')
-        .orderBy('score', descending: true)
-        .get();
-
-    Map<String, int> updatedAllTimeHighscores = {};
-
-    for (QueryDocumentSnapshot docSnapshot in qrySnapshot.docs) {
-      Map<String, dynamic> data = docSnapshot.data() as Map<String, dynamic>;
-
-      String? user = data['name'];
-      int? score = data['score'];
-
-      if (user != null && score != null) {
-        if (updatedAllTimeHighscores.containsKey(user)) {
-          if (updatedAllTimeHighscores[user]! < score) {
-            updatedAllTimeHighscores[user] = score;
-          }
-        } else {
-          updatedAllTimeHighscores[user] = score;
-        }
-      }
-    }
 
     setState(() {
       highscores = updatedHighscores;
-      allTimeHighscores = updatedAllTimeHighscores;
       leaderboardDocIds = querySnapshot.docs.map((doc) => doc.id).toList();
     });
   }
@@ -704,12 +678,13 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
       'date': FieldValue.serverTimestamp(),
     };
 
-    if (score != 0)
+    if (score != 0) {
       FirebaseFirestore.instance.collection('leaderboard').add(data);
+    }
     refreshLeaderboard();
 
     FirebaseFirestore.instance
-        .collection("highscores")
+        .collection("leaderboard")
         .orderBy('score', descending: true)
         .get()
         .then(
@@ -767,7 +742,6 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const CircularProgressIndicator();
                   } else if (snapshot.hasError) {
-                    print(snapshot.error);
                     return const Text('Error loading leaderboard.');
                   } else {
                     return Column(
@@ -836,11 +810,11 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                             SizedBox(
                               height: 350,
                               child: ListView.builder(
-                                itemCount: allTimeHighscores.length,
+                                itemCount: highscores.length,
                                 itemBuilder: (context, index) {
                                   String user =
-                                      allTimeHighscores.keys.elementAt(index);
-                                  int highscore = allTimeHighscores[user]!;
+                                      highscores.keys.elementAt(index);
+                                  int highscore = highscores[user]!;
 
                                   return HighscoreTile(
                                     name: user,
@@ -887,7 +861,25 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
     double screenWidth = MediaQuery.of(context).size.width;
-    double desiredHeight = screenWidth * (560 / 20) / 20;
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    double availableHeight = screenHeight - 120;
+    
+    int numberRows = (numberOfSquares / rowSize).ceil();
+    double sizeSquare = screenWidth / (rowSize+1);
+    
+    double desiredHeight = numberRows * sizeSquare;
+    double desiredWidth = (rowSize+.5) * sizeSquare;
+
+    var paddingToAdd = 0.0;
+    if (desiredWidth < screenWidth) {
+      paddingToAdd = (screenWidth - desiredWidth) / 2;
+    }
+
+    if (desiredHeight > availableHeight) {
+      desiredHeight = availableHeight;
+    }
+
 
     return WillPopScope(
       onWillPop: () async {
@@ -996,7 +988,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                padding: EdgeInsets.symmetric(horizontal: 4.0 + paddingToAdd),
                 child: SizedBox(
                   height: desiredHeight,
                   child: ClipRRect(

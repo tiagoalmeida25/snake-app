@@ -34,6 +34,7 @@ class LeaderboardState extends State<Leaderboard> {
   Map<String, int> todayHighscores = {};
   Map<String, int> weeklyHighscores = {};
   Map<String, int> monthlyHighscores = {};
+  Map<String, int> allHighscores = {};
 
   void refreshLeaderboard() {
     setState(() {
@@ -65,30 +66,6 @@ class LeaderboardState extends State<Leaderboard> {
           }
         } else {
           updatedHighscores[user] = score;
-        }
-      }
-    }
-
-    QuerySnapshot qrySnapshot = await FirebaseFirestore.instance
-        .collection('highscores')
-        .orderBy('score', descending: true)
-        .get();
-
-    Map<String, int> updatedAllTimeHighscores = {};
-
-    for (QueryDocumentSnapshot docSnapshot in qrySnapshot.docs) {
-      Map<String, dynamic> data = docSnapshot.data() as Map<String, dynamic>;
-
-      String? user = data['name'];
-      int? score = data['score'];
-
-      if (user != null && score != null) {
-        if (updatedAllTimeHighscores.containsKey(user)) {
-          if (updatedAllTimeHighscores[user]! < score) {
-            updatedAllTimeHighscores[user] = score;
-          }
-        } else {
-          updatedAllTimeHighscores[user] = score;
         }
       }
     }
@@ -126,10 +103,10 @@ class LeaderboardState extends State<Leaderboard> {
 
     setState(() {
       highscores = updatedHighscores;
-      allTimeHighscores = updatedAllTimeHighscores;
       todayHighscores = updatedTodayHighscores;
       weeklyHighscores = updatedWeeklyHighscores;
       monthlyHighscores = updatedMonthlyHighscores;
+      allHighscores = updatedHighscores;
     });
   }
 
@@ -146,6 +123,7 @@ class LeaderboardState extends State<Leaderboard> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+
     return Scaffold(
         backgroundColor: Colors.black,
         body: Padding(
@@ -214,7 +192,7 @@ class LeaderboardState extends State<Leaderboard> {
                           text: 'All',
                         ),
                       ],
-                      selectedIndex: 0,
+                      selectedIndex: 3,
                       onTabChange: (index) {
                         setState(() {
                           if (index == 0) {
@@ -224,7 +202,7 @@ class LeaderboardState extends State<Leaderboard> {
                           } else if (index == 2) {
                             highscores = monthlyHighscores;
                           } else if (index == 3) {
-                            highscores = allTimeHighscores;
+                            highscores = allHighscores;
                           }
                         });
                       },
