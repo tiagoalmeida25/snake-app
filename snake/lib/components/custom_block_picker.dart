@@ -20,7 +20,7 @@ class CustomBlockPicker extends StatefulWidget {
 class CustomBlockPickerState extends State<CustomBlockPicker> {
   final int crossAxisCount = 5;
   final double blockSize = 45.0; 
-  final double spacingFactor = 0.15; 
+  final double spacingFactor = 0.2; 
 
   double get crossAxisSpacing =>
       (MediaQuery.of(context).size.width - (crossAxisCount * blockSize)) /

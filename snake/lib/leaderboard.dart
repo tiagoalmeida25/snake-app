@@ -7,8 +7,9 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 class Leaderboard extends StatefulWidget {
   final String? username;
   final int? score;
+  final Color? color;
 
-  const Leaderboard({super.key, required this.username, required this.score});
+  const Leaderboard({super.key, required this.username, required this.score, required this.color});
 
   @override
   LeaderboardState createState() => LeaderboardState();
@@ -30,7 +31,6 @@ class LeaderboardState extends State<Leaderboard> {
 
   late Future? letsGetDocIds;
   Map<String, int> highscores = {};
-  Map<String, int> allTimeHighscores = {};
   Map<String, int> todayHighscores = {};
   Map<String, int> weeklyHighscores = {};
   Map<String, int> monthlyHighscores = {};
@@ -167,10 +167,10 @@ class LeaderboardState extends State<Leaderboard> {
                       duration: const Duration(milliseconds: 500),
                       gap: 4,
                       color: Colors.grey[800],
-                      activeColor: Colors.green,
+                      activeColor: widget.color,
                       iconSize: 24, 
-                      tabBackgroundColor: Colors.green
-                          .withOpacity(0.1), 
+                      tabBackgroundColor: widget.color
+                          !.withOpacity(0.1), 
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20,
                           vertical: 5), 
@@ -243,7 +243,7 @@ class LeaderboardState extends State<Leaderboard> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(100, 50),
-                    backgroundColor: Colors.green,
+                    backgroundColor: widget.color,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16.0),

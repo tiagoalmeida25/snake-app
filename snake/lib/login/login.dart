@@ -89,166 +89,149 @@ class LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+    double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.0),
-            child: Row(
-              children: [
-                Text(
-                  'snake',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 45,
-                    fontWeight: FontWeight.bold,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-                Text(
-                  ' game',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 45,
-                  ),
-                )
-              ],
-            ),
+      body: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: MediaQuery.of(context).size.width,
+            minHeight: MediaQuery.of(context).size.height,
           ),
-          Column(
-            children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.0),
-                child: Row(
-                  children: [
-                    Text(
-                      'Login',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
+          child: IntrinsicHeight(
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 24.0),
+                        child: Row(
+                          children: [
+                            Text(
+                              'snake',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 45,
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                            Text(
+                              ' game',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 45,
+                              ),
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              UsernameField(
-                controller: emailController,
-                hintText: 'Email',
-              ),
-              const SizedBox(height: 20),
-              PasswordField(
-                controller: passwordController,
-                hintText: 'Password',
-              ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, '/signup');
-                      },
-                      child: const Row(
+                      Column(
                         children: [
-                          Text(
-                            'Create your account ',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 24.0),
+                            child: Row(
+                              children: [
+                                Text(
+                                  'Login',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          Text(
-                            'here!',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              decoration: TextDecoration.underline,
-                              fontWeight: FontWeight.bold,
+                          const SizedBox(height: 20),
+                          UsernameField(
+                            width: screenWidth,
+                            controller: emailController,
+                            hintText: 'Email',
+                          ),
+                          const SizedBox(height: 20),
+                          PasswordField(
+                            width: screenWidth,
+                            controller: passwordController,
+                            hintText: 'Password',
+                          ),
+                          const SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 30),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.pushNamed(context, '/signup');
+                                  },
+                                  child: const Row(
+                                    children: [
+                                      Text(
+                                        'Create your account ',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        'here!',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 15,
+                                          decoration: TextDecoration.underline,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
+                          const SizedBox(height: 25),
                         ],
                       ),
-                    ),
-                  ],
+                      ElevatedButton(
+                        onPressed: () {
+                          login();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.green,
+                          elevation: 5, // Shadow elevation
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 15, horizontal: 30),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.play_arrow),
+                            SizedBox(width: 10),
+                            Text(
+                              'Play',
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            SizedBox(width: 10),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 25),
-
-              // Padding(
-              //   padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              //   child: Row(
-              //     children: [
-              //       Expanded(
-              //         child: Divider(thickness: 0.5, color: Colors.grey[400]),
-              //       ),
-              //       const Padding(
-              //         padding: EdgeInsets.symmetric(horizontal: 10.0),
-              //         child: Text('Or continue with',
-              //             style: TextStyle(color: Colors.white)),
-              //       ),
-              //       Expanded(
-              //         child: Divider(thickness: 0.5, color: Colors.grey[400]),
-              //       )
-              //     ],
-              //   ),
-              // ),
-
-              // const SizedBox(
-              //   height: 20,
-              // ),
-
-              // GestureDetector(
-              //   onTap: () => {AuthService().signInWithGoogle()},
-              //   child: Container(
-              //     padding: const EdgeInsets.all(10),
-              //     decoration: BoxDecoration(
-              //       border: Border.all(color: Colors.white),
-              //       borderRadius: BorderRadius.circular(50),
-              //       color: const Color.fromARGB(62, 232, 232, 232),
-              //     ),
-              //     child: Image.asset(
-              //       'lib/images/google.png',
-              //       height: 30,
-              //     ),
-              //   ),
-              // )
-            ],
-          ),
-          ElevatedButton(
-            onPressed: () {
-              login();
-            },
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: Colors.green,
-              elevation: 5, // Shadow elevation
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.play_arrow),
-                SizedBox(width: 10),
-                Text(
-                  'Play',
-                  style: TextStyle(fontSize: 20),
-                ),
-                SizedBox(width: 10),
               ],
             ),
-          )
-        ],
+          ),
+        ),
       ),
     );
   }

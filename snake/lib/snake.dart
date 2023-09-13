@@ -8,6 +8,7 @@ import 'package:snake/highscore_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:snake/leaderboard.dart';
+import 'package:snake/profile.dart';
 
 import 'dart:async';
 
@@ -42,9 +43,9 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   int playerPosition = 0;
   int score = 0;
 
-  Color fieldColor = Colors.black;
+  Color fieldColor = const Color.fromRGBO(33, 33, 33, 1);
   Color snakeColor = Colors.white;
-  Color foodColor = Colors.green;
+  Color foodColor = const Color.fromARGB(255, 46, 133, 49);
   int timeLength = 275;
   Color gridColor = const Color.fromRGBO(66, 66, 66, 1);
 
@@ -654,7 +655,6 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
       }
     }
 
-
     setState(() {
       highscores = updatedHighscores;
       leaderboardDocIds = querySnapshot.docs.map((doc) => doc.id).toList();
@@ -706,7 +706,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => Leaderboard(username: name, score: score),
+        builder: (context) => Leaderboard(username: name, score: score, color: foodColor),
       ),
     );
   }
@@ -856,6 +856,17 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     );
   }
 
+  void profile() {
+    togglePause();
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Profile(username: name, color: foodColor),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
@@ -864,12 +875,12 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     double screenHeight = MediaQuery.of(context).size.height;
 
     double availableHeight = screenHeight - 120;
-    
+
     int numberRows = (numberOfSquares / rowSize).ceil();
-    double sizeSquare = screenWidth / (rowSize+1);
-    
+    double sizeSquare = screenWidth / (rowSize + 1);
+
     double desiredHeight = numberRows * sizeSquare;
-    double desiredWidth = (rowSize+.5) * sizeSquare;
+    double desiredWidth = (rowSize + .5) * sizeSquare;
 
     var paddingToAdd = 0.0;
     if (desiredWidth < screenWidth) {
@@ -879,7 +890,6 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     if (desiredHeight > availableHeight) {
       desiredHeight = availableHeight;
     }
-
 
     return WillPopScope(
       onWillPop: () async {
@@ -950,12 +960,20 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 30,
+                            fontStyle: FontStyle.italic,
                           ),
                         ),
                       ],
                     ),
                     Row(
                       children: [
+                        // IconButton(
+                        //   icon: const Icon(
+                        //     Icons.person,
+                        //     color: Colors.white,
+                        //   ),
+                        //   onPressed: profile,
+                        // ),
                         IconButton(
                           icon: const Icon(
                             Icons.leaderboard,

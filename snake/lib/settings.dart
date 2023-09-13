@@ -20,9 +20,9 @@ List<String> speedList = [
 ];
 
 class SnakeSettingsState extends State<SnakeSettings> {
-  Color fieldColor = Colors.amber;
-  Color snakeColor = Colors.amber;
-  Color foodColor = Colors.amber;
+  Color fieldColor = const Color.fromRGBO(33, 33, 33, 1);
+  Color snakeColor = Colors.white;
+  Color foodColor = const Color.fromARGB(255, 46, 133, 49);
   String dropdownSpeed = 'Medium';
   bool isGrid = false;
 

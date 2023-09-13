@@ -45,7 +45,7 @@ class MainApp extends StatelessWidget  {
         '/snake': (context) => const Snake(),
         '/signup': (context) => const Signup(),
         '/settings': (context) => const SnakeSettings(),
-        '/leaderboard': (context) => const Leaderboard(score: 0, username: '',),
+        '/leaderboard': (context) => const Leaderboard(score: 0, username: '',color: Colors.green),
       },
     );
   }
