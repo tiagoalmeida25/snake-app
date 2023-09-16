@@ -23,7 +23,7 @@ class SnakeSettingsState extends State<SnakeSettings> {
   Color fieldColor = const Color.fromRGBO(33, 33, 33, 1);
   Color snakeColor = Colors.white;
   Color foodColor = const Color.fromARGB(255, 46, 133, 49);
-  String dropdownSpeed = 'Medium';
+  String dropdownSpeed = speedList[2];
   bool isGrid = false;
 
   @override
@@ -298,14 +298,20 @@ class SnakeSettingsState extends State<SnakeSettings> {
                     dropdownColor: const Color.fromARGB(255, 34, 34, 34),
                     iconEnabledColor: Colors.white,
                     style: const TextStyle(color: Colors.white),
-                    items: speedList.map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value,
+                    items: speedList.map(
+                      (String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(
+                            value,
                             style: const TextStyle(
-                                fontSize: 20, color: Colors.white)),
-                      );
-                    }).toList(),
+                              fontSize: 20,
+                              color: Colors.white,
+                            ),
+                          ),
+                        );
+                      },
+                    ).toList(),
                     onChanged: (String? value) {
                       setState(() {
                         dropdownSpeed = value!;

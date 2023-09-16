@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:snake/highscore_tile.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,12 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
 
   static List<int> snakePosition = [76, 98, 120, 142];
 
+  InterstitialAd? _interstitialAd;
+  RewardedAd? _rewardedAd;
+
+  final String _adUnitIdInterstitial = 'ca-app-pub-6337096519310369/2434885867';
+  final String _adUnitIdRewarded = 'ca-app-pub-6337096519310369/3689339358';
+
   bool readMove = true;
   bool isGameStart = true;
   bool isGameOnPause = false;
@@ -38,6 +45,10 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
 
   bool isPoison = false;
   bool isExtraFood = false;
+  bool isObstacle = false;
+  bool isBorder = false;
+
+  bool showWatchVideoButton = true;
 
   String? name;
   int playerPosition = 0;
@@ -54,6 +65,30 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   static var randomNumber = Random();
   int food = randomNumber.nextInt(702);
   List<int> extraFood = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
+  List<int> obstacles = [
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+  ];
+  List<int> borders = [
+    for (int i = 0; i < 22; i++) i,
+    for (int i = 22; i < 704; i += 22) i,
+    for (int i = 21; i < 704; i += 22) i,
+    for (int i = 682; i < 704; i++) i,
+  ];
   int poison = -1;
 
   AudioPlayer pointAudio = AudioPlayer();
@@ -63,26 +98,28 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    super.initState();
     loadUsername();
     setState(() {
       letsGetDocIds = getDocIds();
     });
     WidgetsBinding.instance.addObserver(this);
     setDefaultSettings();
+    super.initState();
   }
 
   void generateNewFood() {
-    food = randomNumber.nextInt(702);
-    while (snakePosition.contains(food)) {
-      food = randomNumber.nextInt(702);
+    food = randomNumber.nextInt(704);
+    while (snakePosition.contains(food) || borders.contains(food)) {
+      food = randomNumber.nextInt(704);
     }
 
     if (isPoison) {
-      poison = randomNumber.nextInt(702);
+      poison = randomNumber.nextInt(704);
 
-      while (snakePosition.contains(poison) || poison == food) {
-        poison = randomNumber.nextInt(702);
+      while (snakePosition.contains(poison) ||
+          poison == food ||
+          borders.contains(food)) {
+        poison = randomNumber.nextInt(704);
       }
     }
 
@@ -90,10 +127,63 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
       int nFood = randomNumber.nextInt(5) + 5;
 
       for (int i = 0; i < nFood; i++) {
-        extraFood[i] = randomNumber.nextInt(702);
+        extraFood[i] = randomNumber.nextInt(704);
 
-        while (snakePosition.contains(extraFood[i]) || extraFood[i] == poison) {
-          extraFood[i] = randomNumber.nextInt(702);
+        while (snakePosition.contains(extraFood[i]) ||
+            extraFood[i] == poison ||
+            borders.contains(food)) {
+          extraFood[i] = randomNumber.nextInt(704);
+        }
+      }
+    }
+
+    if (isObstacle) {
+      if (score >= 100) {
+        obstacles = [
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1
+        ];
+      } else if (score >= 150) {
+        obstacles = [
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+        ];
+      } else if (score >= 200) {
+        obstacles = [-1, -1, -1, -1, -1, -1 - 1, -1, -1, -1];
+      }
+
+      for (int i = 0; i < obstacles.length; i++) {
+        obstacles[i] = randomNumber.nextInt(702);
+
+        while (snakePosition.contains(obstacles[i]) ||
+            obstacles[i] == poison ||
+            obstacles[i] == food) {
+          obstacles[i] = randomNumber.nextInt(702);
+        }
+        for (int j = 0; j < extraFood.length; j++) {
+          if (obstacles[i] == extraFood[j]) {
+            obstacles[i] = randomNumber.nextInt(702);
+          }
         }
       }
     }
@@ -102,6 +192,8 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _interstitialAd?.dispose();
+    _rewardedAd?.dispose();
     super.dispose();
   }
 
@@ -393,6 +485,123 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     isGameStart = true;
   }
 
+  void keepPlayingAd(StreamSubscription? gameStream) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Theme(
+          data: ThemeData(
+            dialogBackgroundColor: Colors.grey[800],
+            dialogTheme: const DialogTheme(
+              titleTextStyle: TextStyle(
+                  color: Color.fromARGB(255, 255, 255, 255),
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold),
+              contentTextStyle: TextStyle(
+                color: Color.fromARGB(255, 248, 248, 248),
+                fontSize: 18,
+              ),
+            ),
+          ),
+          child: WillPopScope(
+            onWillPop: () => Future.value(false),
+            child: AlertDialog(
+              title: const Text('Keep playing?'),
+              content: const Text('Watch a video to continue playing.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    gameStream?.cancel();
+                    Navigator.of(context).pop();
+                    _interstitialAd?.show();
+                    _showGameOverScreen();
+                  },
+                  child: const Text('No'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() => showWatchVideoButton = false);
+                    _rewardedAd?.show(
+                      onUserEarnedReward:
+                          (AdWithoutView ad, RewardItem rewardItem) {
+                        setState(
+                          () {
+                            snakePosition.removeAt(snakePosition.length - 1);
+                            snakePosition.removeAt(snakePosition.length - 1);
+                            snakePosition.removeAt(snakePosition.length - 1);
+
+                            isGameOver = false;
+                          },
+                        );
+                      },
+                    );
+                    gameStream?.resume();
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Yes'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: _adUnitIdInterstitial,
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdShowedFullScreenContent: (ad) {},
+            onAdImpression: (ad) {},
+            onAdFailedToShowFullScreenContent: (ad, err) {
+              ad.dispose();
+            },
+            onAdDismissedFullScreenContent: (ad) {
+              ad.dispose();
+            },
+            onAdClicked: (ad) {},
+          );
+
+          _interstitialAd = ad;
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          debugPrint('InterstitialAd failed to load: $error');
+        },
+      ),
+    );
+  }
+
+  void _loadRewardedAd() {
+    RewardedAd.load(
+      adUnitId: _adUnitIdRewarded,
+      request: const AdRequest(),
+      rewardedAdLoadCallback: RewardedAdLoadCallback(
+        onAdLoaded: (ad) {
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdShowedFullScreenContent: (ad) {},
+            onAdImpression: (ad) {},
+            onAdFailedToShowFullScreenContent: (ad, err) {
+              ad.dispose();
+            },
+            onAdDismissedFullScreenContent: (ad) {
+              ad.dispose();
+            },
+            onAdClicked: (ad) {},
+          );
+          _rewardedAd = ad;
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          debugPrint('RewardedAd failed to load: $error');
+        },
+      ),
+    );
+  }
+
   Future<String?> getUsername() async {
     var user = FirebaseAuth.instance.currentUser;
 
@@ -421,6 +630,8 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     return null;
   }
 
+  StreamSubscription? gameStream;
+
   void startGame() {
     isGameStart = false;
     isGameOver = false;
@@ -428,26 +639,43 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     isGameOnPause = false;
     isPoison = false;
     isExtraFood = false;
+    isObstacle = false;
+    isBorder = false;
+    showWatchVideoButton = true;
+
+    _loadInterstitialAd();
+    _loadRewardedAd();
 
     snakePosition = [76, 98, 120, 142];
 
     var duration = Duration(milliseconds: timeLength);
     direction = 'down';
 
-    Timer.periodic(duration, (Timer timer) {
+    gameStream = Stream.periodic(duration).listen((_) {
       score = snakePosition.length - 4;
+
       if (gameOver() || isGameOver) {
-        timer.cancel();
         submitScore();
 
         if (isGameOverScreen) {
           gameOverAudio.play(AssetSource('gameover.wav'));
-          _showGameOverScreen();
+
+          if (showWatchVideoButton) {
+            gameStream?.pause();
+            keepPlayingAd(gameStream);
+          } else {
+            gameStream?.cancel();
+            _interstitialAd?.show();
+            _showGameOverScreen();
+          }
         } else {
+          gameStream?.cancel();
           setState(() {
             isGameStart = true;
             isPoison = false;
             isExtraFood = false;
+            isObstacle = false;
+            isBorder = false;
           });
         }
       } else {
@@ -496,6 +724,24 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
 
           default:
         }
+        if (isObstacle) {
+          for (int i = 0; i < obstacles.length; i++) {
+            if (snakePosition.last == obstacles[i]) {
+              isGameOver = true;
+              reasonForGameOver = 'You ran into an obstacle!';
+              losingAudio.play(AssetSource('ai.wav'));
+            }
+          }
+        }
+        if (isBorder) {
+          for (int i = 0; i < borders.length; i++) {
+            if (snakePosition.last == borders[i]) {
+              isGameOver = true;
+              reasonForGameOver = 'You ran into a border!';
+              losingAudio.play(AssetSource('ai.wav'));
+            }
+          }
+        }
         if (isExtraFood) {
           for (int i = 0; i < extraFood.length; i++) {
             if (snakePosition.last == extraFood[i]) {
@@ -505,7 +751,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
           }
         }
         if (snakePosition.last == food) {
-          if (score % 20 == 0 && !isExtraFood && score > 25) {
+          if ((score + 1) % 20 == 0 && !isExtraFood && score > 25) {
             isExtraFood = true;
             Fluttertoast.showToast(
               msg: "Find the true food, but careful with the poison!",
@@ -515,10 +761,10 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
               textColor: Colors.white,
               fontSize: 16.0,
             );
-          } else if (isExtraFood && (score - 1) % 20 == 0 && score > 25) {
+          } else if (isExtraFood && score % 20 == 0 && score > 25) {
             isExtraFood = false;
           }
-          if (score % 10 == 0 && !isPoison && score > 10) {
+          if ((score + 1) % 10 == 0 && !isPoison && score > 10) {
             isPoison = true;
             if (!isExtraFood) {
               Fluttertoast.showToast(
@@ -530,8 +776,34 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                 fontSize: 16.0,
               );
             }
-          } else if (isPoison && (score - 4) % 10 == 0 && score > 10) {
+          } else if (isPoison && (score - 2) % 10 == 0 && score > 10) {
             isPoison = false;
+          }
+          if (!isObstacle && (score + 1) % 35 == 0 && score > 10) {
+            isObstacle = true;
+            Fluttertoast.showToast(
+              msg: "Look out for the obstacles!",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.TOP,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+          } else if (isObstacle && (score - 1) % 35 == 0 && score > 10) {
+            isObstacle = false;
+          }
+          if (!isBorder && (score + 1) % 25 == 0 && score > 10) {
+            isBorder = true;
+            Fluttertoast.showToast(
+              msg: "Look out for the borders!",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.TOP,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+          } else if (isBorder && (score - 4) % 25 == 0 && score > 10) {
+            isBorder = false;
           }
           generateNewFood();
           pointAudio.play(AssetSource('nhamnham.wav'));
@@ -706,13 +978,14 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => Leaderboard(username: name, score: score, color: foodColor),
+        builder: (context) =>
+            Leaderboard(username: name, score: score, color: foodColor),
       ),
     );
   }
 
   void _showGameOverScreen() {
-    isGameStart = true;
+    setState(() => isGameStart = true);
 
     showDialog(
       context: context,
@@ -836,16 +1109,10 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                 TextButton(
                   child: const Text('Play Again'),
                   onPressed: () {
-                    startGame();
-                    Navigator.of(context).pop();
-                  },
-                ),
-                TextButton(
-                  child: const Text('Close'),
-                  onPressed: () {
                     isGameStart = true;
                     isGameOnPause = false;
                     Navigator.of(context).pop();
+                    
                   },
                 ),
               ],
@@ -1096,6 +1363,28 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                                 ),
                               );
                             }
+                            if (isObstacle && obstacles.contains(index)) {
+                              return Container(
+                                padding: const EdgeInsets.all(2),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Container(
+                                    color: Colors.blueGrey,
+                                  ),
+                                ),
+                              );
+                            }
+                            if (isBorder && borders.contains(index)) {
+                              return Container(
+                                padding: const EdgeInsets.all(2),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Container(
+                                    color: Colors.blueGrey,
+                                  ),
+                                ),
+                              );
+                            }
                             if (index == food) {
                               return Container(
                                 padding: const EdgeInsets.all(2),
@@ -1111,7 +1400,9 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                                 padding: const EdgeInsets.all(2),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(4),
-                                  child: Container(color: gridColor),
+                                  child: Container(
+                                    color: gridColor,
+                                  ),
                                 ),
                               );
                             }

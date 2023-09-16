@@ -21,6 +21,7 @@ dependencies:
   audioplayers: ^5.1.0
   google_nav_bar: ^5.0.6
   rename: ^2.1.1
+  google_mobile_ads:
   
 
 
