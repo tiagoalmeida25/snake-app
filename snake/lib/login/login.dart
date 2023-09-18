@@ -5,7 +5,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:snake/components/password_textfield.dart';
 import 'package:snake/components/username_textfield.dart';
 import 'package:flutter/services.dart';
-import 'package:snake/services/auth_service.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});

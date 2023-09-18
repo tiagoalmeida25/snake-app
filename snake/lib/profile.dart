@@ -165,7 +165,6 @@ class _ProfileState extends State<Profile> {
           'name': name,
         };
       }
-      print(highestScoresByDay);
 
       highestScoresByDay.forEach((key, value) {
         if (value['name'] == username) {

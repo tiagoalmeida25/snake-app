@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:snake/components/personalization.dart';
 import 'package:snake/highscore_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -28,13 +29,18 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   int numberOfSquares = 704;
   int rowSize = 22;
 
-  static List<int> snakePosition = [76, 98, 120, 142];
+  static List<int> snakePosition = [76, 98, 120, 142, 164];
 
   InterstitialAd? _interstitialAd;
   RewardedAd? _rewardedAd;
+  RewardedInterstitialAd? _rewardedInterstitialAd;
+  BannerAd? _bannerAd;
 
+  final String _adUnitIdRewardedInterstitial =
+      'ca-app-pub-6337096519310369/9216233864';
   final String _adUnitIdInterstitial = 'ca-app-pub-6337096519310369/2434885867';
   final String _adUnitIdRewarded = 'ca-app-pub-6337096519310369/3689339358';
+  final String _adUnitIdBanner = 'ca-app-pub-6337096519310369/5059736123';
 
   bool readMove = true;
   bool isGameStart = true;
@@ -102,6 +108,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     setState(() {
       letsGetDocIds = getDocIds();
     });
+    _loadBannerAd();
     WidgetsBinding.instance.addObserver(this);
     setDefaultSettings();
     super.initState();
@@ -118,7 +125,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
 
       while (snakePosition.contains(poison) ||
           poison == food ||
-          borders.contains(food)) {
+          borders.contains(poison)) {
         poison = randomNumber.nextInt(704);
       }
     }
@@ -131,7 +138,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
 
         while (snakePosition.contains(extraFood[i]) ||
             extraFood[i] == poison ||
-            borders.contains(food)) {
+            borders.contains(extraFood[i])) {
           extraFood[i] = randomNumber.nextInt(704);
         }
       }
@@ -194,6 +201,8 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     _interstitialAd?.dispose();
     _rewardedAd?.dispose();
+    _rewardedInterstitialAd?.dispose();
+    _bannerAd?.dispose();
     super.dispose();
   }
 
@@ -225,123 +234,6 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   void signoff() async {
     await FirebaseAuth.instance.signOut();
     Navigator.of(context).pushReplacementNamed('/auth');
-  }
-
-  String setStringFromColor(Color colorString) {
-    if (colorString == const Color.fromARGB(255, 46, 133, 49)) {
-      return 'green';
-    } else if (colorString == const Color.fromARGB(255, 223, 26, 12)) {
-      return 'red';
-    } else if (colorString == Colors.blue) {
-      return 'blue';
-    } else if (colorString == const Color.fromARGB(255, 158, 17, 183)) {
-      return 'purple';
-    } else if (colorString == const Color.fromARGB(255, 237, 14, 174)) {
-      return 'pink';
-    } else if (colorString == Colors.orange) {
-      return 'orange';
-    } else if (colorString == Colors.yellow) {
-      return 'yellow';
-    } else if (colorString == Colors.teal) {
-      return 'teal';
-    } else if (colorString == Colors.white) {
-      return 'white';
-    } else if (colorString == Colors.black) {
-      return 'black';
-    } else if (colorString == Colors.grey) {
-      return 'grey';
-    } else if (colorString == Colors.grey[800]) {
-      return 'grey[700]';
-    } else if (colorString == Colors.grey[100]) {
-      return 'grey[100]';
-    } else if (colorString == Colors.red[100]) {
-      return 'red[100]';
-    } else if (colorString == Colors.blue[100]) {
-      return 'blue[100]';
-    } else if (colorString == Colors.yellow[100]) {
-      return 'yellow[100]';
-    } else if (colorString == Colors.green[100]) {
-      return 'green[100]';
-    } else if (colorString == Colors.orange[100]) {
-      return 'orange[100]';
-    } else if (colorString == Colors.grey[600]) {
-      return 'grey[600]';
-    } else if (colorString == Colors.red[800]) {
-      return 'red[800]';
-    } else if (colorString == Colors.blue[800]) {
-      return 'blue[800]';
-    } else if (colorString == Colors.yellow[800]) {
-      return 'yellow[800]';
-    } else if (colorString == Colors.green[800]) {
-      return 'green[800]';
-    } else if (colorString == Colors.orange[800]) {
-      return 'orange[800]';
-    } else if (colorString == Colors.grey[900]) {
-      return 'grey[900]';
-    } else if (colorString == Colors.grey[300]) {
-      return 'grey[300]';
-    } else {
-      return 'black';
-    }
-  }
-
-  Color getColorFromString(String colorString) {
-    switch (colorString) {
-      case 'green':
-        return const Color.fromARGB(255, 46, 133, 49);
-      case 'red':
-        return const Color.fromARGB(255, 223, 26, 12);
-      case 'blue':
-        return Colors.blue;
-      case 'purple':
-        return const Color.fromARGB(255, 158, 17, 183);
-      case 'pink':
-        return const Color.fromARGB(255, 237, 14, 174);
-      case 'orange':
-        return Colors.orange;
-      case 'yellow':
-        return Colors.yellow;
-      case 'teal':
-        return Colors.teal;
-      case 'black':
-        return Colors.black;
-      case 'grey':
-        return Colors.grey;
-      case 'white':
-        return Colors.white;
-      case 'grey[900]':
-        return const Color.fromRGBO(33, 33, 33, 1);
-      case 'grey[600]':
-        return const Color.fromRGBO(117, 117, 117, 1);
-      case 'grey[400]':
-        return const Color.fromRGBO(224, 224, 224, 1);
-      case 'grey[700]':
-        return const Color.fromRGBO(66, 66, 66, 1);
-      case 'grey[100]':
-        return const Color.fromRGBO(238, 238, 238, 1);
-      case 'green[100]':
-        return const Color.fromRGBO(200, 230, 201, 1);
-      case 'red[100]':
-        return const Color.fromRGBO(255, 205, 210, 1);
-      case 'blue[100]':
-        return const Color.fromRGBO(187, 222, 251, 1);
-      case 'yellow[100]':
-        return const Color.fromRGBO(255, 249, 196, 1);
-      case 'orange[100]':
-        return const Color.fromRGBO(255, 224, 178, 1);
-      case 'red[800]':
-        return const Color.fromRGBO(198, 40, 40, 1);
-      case 'orange[800]':
-        return const Color.fromRGBO(239, 108, 0, 1);
-      case 'yellow[800]':
-        return const Color.fromRGBO(249, 168, 37, 1);
-      case 'green[800]':
-        return const Color.fromRGBO(46, 125, 50, 1);
-      case 'blue[800]':
-        return const Color.fromRGBO(21, 101, 192, 1);
-      default:
-        return Colors.black;
-    }
   }
 
   void setDefaultSettings() async {
@@ -479,74 +371,12 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   }
 
   void restart() {
-    isGameOver = true;
-    isGameOverScreen = false;
-    isGameOnPause = false;
-    isGameStart = true;
-  }
-
-  void keepPlayingAd(StreamSubscription? gameStream) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Theme(
-          data: ThemeData(
-            dialogBackgroundColor: Colors.grey[800],
-            dialogTheme: const DialogTheme(
-              titleTextStyle: TextStyle(
-                  color: Color.fromARGB(255, 255, 255, 255),
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold),
-              contentTextStyle: TextStyle(
-                color: Color.fromARGB(255, 248, 248, 248),
-                fontSize: 18,
-              ),
-            ),
-          ),
-          child: WillPopScope(
-            onWillPop: () => Future.value(false),
-            child: AlertDialog(
-              title: const Text('Keep playing?'),
-              content: const Text('Watch a video to continue playing.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    gameStream?.cancel();
-                    Navigator.of(context).pop();
-                    _interstitialAd?.show();
-                    _showGameOverScreen();
-                  },
-                  child: const Text('No'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    setState(() => showWatchVideoButton = false);
-                    _rewardedAd?.show(
-                      onUserEarnedReward:
-                          (AdWithoutView ad, RewardItem rewardItem) {
-                        setState(
-                          () {
-                            snakePosition.removeAt(snakePosition.length - 1);
-                            snakePosition.removeAt(snakePosition.length - 1);
-                            snakePosition.removeAt(snakePosition.length - 1);
-
-                            isGameOver = false;
-                          },
-                        );
-                      },
-                    );
-                    gameStream?.resume();
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Yes'),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+    setState(() {
+      isGameOver = true;
+      isGameOverScreen = false;
+      isGameOnPause = false;
+      isGameStart = true;
+    });
   }
 
   void _loadInterstitialAd() {
@@ -576,6 +406,52 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     );
   }
 
+  void _loadBannerAd() {
+    BannerAd(
+      adUnitId: _adUnitIdBanner,
+      request: const AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _bannerAd = ad as BannerAd;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          print('Failed to load a banner ad: ${err.message}');
+          ad.dispose();
+        },
+      ),
+    ).load();
+  }
+
+  void _loadRewardedInterstitialAd() {
+    RewardedInterstitialAd.load(
+      adUnitId: _adUnitIdRewardedInterstitial,
+      request: const AdRequest(),
+      rewardedInterstitialAdLoadCallback: RewardedInterstitialAdLoadCallback(
+        onAdLoaded: (RewardedInterstitialAd ad) {
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdShowedFullScreenContent: (ad) {},
+            onAdImpression: (ad) {},
+            onAdFailedToShowFullScreenContent: (ad, err) {
+              ad.dispose();
+            },
+            onAdDismissedFullScreenContent: (ad) {
+              ad.dispose();
+            },
+            onAdClicked: (ad) {},
+          );
+
+          _rewardedInterstitialAd = ad;
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          debugPrint('Rewarded interstitial ad failed to load: $error');
+        },
+      ),
+    );
+  }
+
   void _loadRewardedAd() {
     RewardedAd.load(
       adUnitId: _adUnitIdRewarded,
@@ -599,6 +475,86 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
           debugPrint('RewardedAd failed to load: $error');
         },
       ),
+    );
+  }
+
+  Future<void> keepPlayingAd(StreamSubscription? gameStream) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Theme(
+          data: ThemeData(
+            dialogBackgroundColor: Colors.grey[800],
+            dialogTheme: const DialogTheme(
+              titleTextStyle: TextStyle(
+                  color: Color.fromARGB(255, 255, 255, 255),
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold),
+              contentTextStyle: TextStyle(
+                color: Color.fromARGB(255, 248, 248, 248),
+                fontSize: 18,
+              ),
+            ),
+          ),
+          child: WillPopScope(
+            onWillPop: () => Future.value(false),
+            child: AlertDialog(
+              title: const Text('Keep playing?'),
+              content: const Text('Watch a video to continue playing.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    gameStream?.cancel();
+                    setState(() => showWatchVideoButton = false);
+                    Navigator.of(context).pop();
+                    _rewardedInterstitialAd?.show(
+                      onUserEarnedReward: (ad, reward) {},
+                    );
+                    _showGameOverScreen();
+                  },
+                  child: const Text('No'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    setState(() {
+                      showWatchVideoButton = false;
+                      isGameOver = false;
+                      adShown = true;
+                      Navigator.of(context).pop();
+                    });
+                    await _rewardedAd?.show(
+                      onUserEarnedReward:
+                          (AdWithoutView ad, RewardItem rewardItem) {
+                        setState(
+                          () {
+                            gameStream?.resume();
+                            isGameOver = false;
+                            isPoison = false;
+                            isExtraFood = false;
+                            isObstacle = false;
+                            isBorder = false;
+                            adShown = true;
+
+                            for (int i = 0; i < snakePosition.length; i++) {
+                              snakePosition[i] = 55;
+                            }
+                            snakePosition.last = 77;
+                            direction = 'down';
+
+                            togglePause();
+                          },
+                        );
+                      },
+                    );
+                  },
+                  child: const Text('Yes'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -631,6 +587,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   }
 
   StreamSubscription? gameStream;
+  bool adShown = false;
 
   void startGame() {
     isGameStart = false;
@@ -642,30 +599,34 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     isObstacle = false;
     isBorder = false;
     showWatchVideoButton = true;
+    adShown = false;
 
     _loadInterstitialAd();
     _loadRewardedAd();
+    _loadRewardedInterstitialAd();
 
-    snakePosition = [76, 98, 120, 142];
+    snakePosition = [76, 98, 120, 142, 164];
 
     var duration = Duration(milliseconds: timeLength);
     direction = 'down';
 
-    gameStream = Stream.periodic(duration).listen((_) {
-      score = snakePosition.length - 4;
+    gameStream = Stream.periodic(duration).listen((_) async {
+      score = snakePosition.length - 5;
 
       if (gameOver() || isGameOver) {
-        submitScore();
-
         if (isGameOverScreen) {
           gameOverAudio.play(AssetSource('gameover.wav'));
 
-          if (showWatchVideoButton) {
+          if (!adShown && _rewardedAd != null) {
             gameStream?.pause();
-            keepPlayingAd(gameStream);
+            await keepPlayingAd(gameStream);
           } else {
             gameStream?.cancel();
-            _interstitialAd?.show();
+            if (_rewardedInterstitialAd != null) {
+              _rewardedInterstitialAd?.show(
+                onUserEarnedReward: (ad, reward) {},
+              );
+            }
             _showGameOverScreen();
           }
         } else {
@@ -815,18 +776,12 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   }
 
   bool gameOver() {
-    for (int i = 0; i < snakePosition.length; i++) {
-      int count = 0;
-      for (int j = 0; j < snakePosition.length; j++) {
-        if (snakePosition[i] == snakePosition[j]) {
-          count += 1;
-        }
-        if (count == 2) {
-          reasonForGameOver = 'You ran into yourself!';
-          losingAudio.play(AssetSource('ai.wav'));
-          isGameOver = true;
-          return true;
-        }
+    for (int i = 0; i < snakePosition.length - 1; i++) {
+      if (snakePosition[i] == snakePosition.last) {
+        reasonForGameOver = 'You ran into yourself!';
+        losingAudio.play(AssetSource('ai.wav'));
+        isGameOver = true;
+        return true;
       }
     }
 
@@ -986,6 +941,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
 
   void _showGameOverScreen() {
     setState(() => isGameStart = true);
+    submitScore();
 
     showDialog(
       context: context,
@@ -1112,7 +1068,6 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                     isGameStart = true;
                     isGameOnPause = false;
                     Navigator.of(context).pop();
-                    
                   },
                 ),
               ],
@@ -1198,9 +1153,16 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                 );
               },
             ) ??
-            false; // Return false if the dialog is dismissed.
+            false;
       },
       child: Scaffold(
+        bottomNavigationBar: _bannerAd != null
+            ? SizedBox(
+                width: _bannerAd!.size.width.toDouble(),
+                height: _bannerAd!.size.height.toDouble(),
+                child: AdWidget(ad: _bannerAd!),
+              )
+            : const SizedBox(),
         backgroundColor: Colors.black,
         body: Center(
           child: Column(

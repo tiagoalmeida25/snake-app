@@ -21,7 +21,7 @@ class PasswordFieldState extends State<PasswordField> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: widget.width,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 25.0),
