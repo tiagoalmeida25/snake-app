@@ -25,6 +25,7 @@ class SnakeSettingsState extends State<SnakeSettings> {
   Color foodColor = const Color.fromARGB(255, 46, 133, 49);
   String dropdownSpeed = speedList[2];
   bool isGrid = false;
+  bool isSoundOn = true;
 
   @override
   void initState() {
@@ -40,6 +41,7 @@ class SnakeSettingsState extends State<SnakeSettings> {
     String? savedFoodColor = prefs.getString('foodColor');
     String? savedSpeed = prefs.getString('speed');
     bool? savedIsGrid = prefs.getBool('isGrid');
+    bool? savedIsSoundOn = prefs.getBool('isSoundOn');
 
     setState(
       () {
@@ -54,6 +56,7 @@ class SnakeSettingsState extends State<SnakeSettings> {
         }
         if (savedSpeed != null) dropdownSpeed = savedSpeed;
         if (savedIsGrid != null) isGrid = savedIsGrid;
+        if (savedIsSoundOn != null) isSoundOn = savedIsSoundOn;
       },
     );
   }
@@ -320,7 +323,6 @@ class SnakeSettingsState extends State<SnakeSettings> {
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -347,7 +349,44 @@ class SnakeSettingsState extends State<SnakeSettings> {
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Choose to activate sounds:',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                        ),
+                      ),
+                      Text(
+                        'Ads are not affected by this.',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Switch(
+                    value: isSoundOn,
+                    overlayColor: overlayColor,
+                    inactiveThumbColor: Colors.grey[400],
+                    inactiveTrackColor: Colors.grey[400],
+                    trackColor: trackColor,
+                    thumbColor: const MaterialStatePropertyAll<Color>(
+                        Color.fromARGB(255, 255, 255, 255)),
+                    onChanged: (bool value) {
+                      setState(() {
+                        isSoundOn = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(100, 50),
@@ -367,7 +406,8 @@ class SnakeSettingsState extends State<SnakeSettings> {
                     snakeColor,
                     foodColor,
                     dropdownSpeed,
-                    isGrid
+                    isGrid,
+                    isSoundOn,
                   ]);
                 },
                 child: const Text('Back', style: TextStyle(fontSize: 20)),
