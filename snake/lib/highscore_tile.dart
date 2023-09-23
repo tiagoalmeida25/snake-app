@@ -7,7 +7,13 @@ class HighscoreTile extends StatelessWidget {
   final int? score;
   final double fontSize;
 
-  const HighscoreTile({Key? key, required this.name, required this.highscore, required this.username, required this.score, this.fontSize = 16})
+  const HighscoreTile(
+      {Key? key,
+      required this.name,
+      required this.highscore,
+      required this.username,
+      required this.score,
+      this.fontSize = 16})
       : super(key: key);
 
   @override
@@ -17,19 +23,30 @@ class HighscoreTile extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          color: name == username? score == highscore? Colors.green[300] : Colors.grey[300] : Colors.transparent,
+          color: name == username
+              ? score == highscore
+                  ? Colors.green[300]
+                  : Colors.grey[300]
+              : Colors.transparent,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 3),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   name!,
-                  style: TextStyle(fontSize: fontSize, color: name == username ? Colors.black : Colors.white),
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    color: name == username ? Colors.black : Colors.white,
+                  ),
                 ),
                 Text(
                   highscore.toString(),
-                  style: TextStyle(fontSize: fontSize, color: name == username ? Colors.black : Colors.white),
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    color: name == username ? Colors.black : Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),

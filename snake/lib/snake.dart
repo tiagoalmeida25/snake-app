@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+// import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:snake/components/personalization.dart';
 import 'package:snake/highscore_tile.dart';
@@ -32,12 +32,12 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
 
   static List<int> snakePosition = [76, 98, 120, 142, 164];
 
-  RewardedAd? _rewardedAd;
-  RewardedInterstitialAd? _rewardedInterstitialAd;
+  // RewardedAd? _rewardedAd;
+  // RewardedInterstitialAd? _rewardedInterstitialAd;
 
-  final String _adUnitIdRewardedInterstitial =
-      'ca-app-pub-6337096519310369/9216233864';
-  final String _adUnitIdRewarded = 'ca-app-pub-6337096519310369/3689339358';
+  // final String _adUnitIdRewardedInterstitial =
+  //     'ca-app-pub-6337096519310369/9216233864';
+  // final String _adUnitIdRewarded = 'ca-app-pub-6337096519310369/3689339358';
 
   bool readMove = true;
   bool isGameStart = true;
@@ -51,7 +51,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   bool isObstacle = false;
   bool isBorder = false;
 
-  bool showWatchVideoButton = true;
+  // bool showWatchVideoButton = true;
 
   String? name;
   int playerPosition = 0;
@@ -196,8 +196,8 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _rewardedAd?.dispose();
-    _rewardedInterstitialAd?.dispose();
+    // _rewardedAd?.dispose();
+    // _rewardedInterstitialAd?.dispose();
     super.dispose();
   }
 
@@ -383,137 +383,137 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     });
   }
 
-  void _loadRewardedInterstitialAd() {
-    RewardedInterstitialAd.load(
-      adUnitId: _adUnitIdRewardedInterstitial,
-      request: const AdRequest(),
-      rewardedInterstitialAdLoadCallback: RewardedInterstitialAdLoadCallback(
-        onAdLoaded: (RewardedInterstitialAd ad) {
-          ad.fullScreenContentCallback = FullScreenContentCallback(
-            onAdShowedFullScreenContent: (ad) {},
-            onAdImpression: (ad) {},
-            onAdFailedToShowFullScreenContent: (ad, err) {
-              ad.dispose();
-            },
-            onAdDismissedFullScreenContent: (ad) {
-              ad.dispose();
-            },
-            onAdClicked: (ad) {},
-          );
-          _rewardedInterstitialAd = ad;
-        },
-        onAdFailedToLoad: (LoadAdError error) {
-          debugPrint('Rewarded interstitial ad failed to load: $error');
-        },
-      ),
-    );
-  }
+  // void _loadRewardedInterstitialAd() {
+  //   RewardedInterstitialAd.load(
+  //     adUnitId: _adUnitIdRewardedInterstitial,
+  //     request: const AdRequest(),
+  //     rewardedInterstitialAdLoadCallback: RewardedInterstitialAdLoadCallback(
+  //       onAdLoaded: (RewardedInterstitialAd ad) {
+  //         ad.fullScreenContentCallback = FullScreenContentCallback(
+  //           onAdShowedFullScreenContent: (ad) {},
+  //           onAdImpression: (ad) {},
+  //           onAdFailedToShowFullScreenContent: (ad, err) {
+  //             ad.dispose();
+  //           },
+  //           onAdDismissedFullScreenContent: (ad) {
+  //             ad.dispose();
+  //           },
+  //           onAdClicked: (ad) {},
+  //         );
+  //         _rewardedInterstitialAd = ad;
+  //       },
+  //       onAdFailedToLoad: (LoadAdError error) {
+  //         debugPrint('Rewarded interstitial ad failed to load: $error');
+  //       },
+  //     ),
+  //   );
+  // }
 
-  void _loadRewardedAd() {
-    RewardedAd.load(
-      adUnitId: _adUnitIdRewarded,
-      request: const AdRequest(),
-      rewardedAdLoadCallback: RewardedAdLoadCallback(
-        onAdLoaded: (ad) {
-          ad.fullScreenContentCallback = FullScreenContentCallback(
-            onAdShowedFullScreenContent: (ad) {},
-            onAdImpression: (ad) {},
-            onAdFailedToShowFullScreenContent: (ad, err) {
-              ad.dispose();
-            },
-            onAdDismissedFullScreenContent: (ad) {
-              ad.dispose();
-            },
-            onAdClicked: (ad) {},
-          );
-          _rewardedAd = ad;
-        },
-        onAdFailedToLoad: (LoadAdError error) {
-          debugPrint('RewardedAd failed to load: $error');
-        },
-      ),
-    );
-  }
+  // void _loadRewardedAd() {
+  //   RewardedAd.load(
+  //     adUnitId: _adUnitIdRewarded,
+  //     request: const AdRequest(),
+  //     rewardedAdLoadCallback: RewardedAdLoadCallback(
+  //       onAdLoaded: (ad) {
+  //         ad.fullScreenContentCallback = FullScreenContentCallback(
+  //           onAdShowedFullScreenContent: (ad) {},
+  //           onAdImpression: (ad) {},
+  //           onAdFailedToShowFullScreenContent: (ad, err) {
+  //             ad.dispose();
+  //           },
+  //           onAdDismissedFullScreenContent: (ad) {
+  //             ad.dispose();
+  //           },
+  //           onAdClicked: (ad) {},
+  //         );
+  //         _rewardedAd = ad;
+  //       },
+  //       onAdFailedToLoad: (LoadAdError error) {
+  //         debugPrint('RewardedAd failed to load: $error');
+  //       },
+  //     ),
+  //   );
+  // }
 
-  Future<void> keepPlayingAd(StreamSubscription? gameStream) async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Theme(
-          data: ThemeData(
-            dialogBackgroundColor: Colors.grey[800],
-            dialogTheme: const DialogTheme(
-              titleTextStyle: TextStyle(
-                  color: Color.fromARGB(255, 255, 255, 255),
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold),
-              contentTextStyle: TextStyle(
-                color: Color.fromARGB(255, 248, 248, 248),
-                fontSize: 18,
-              ),
-            ),
-          ),
-          child: WillPopScope(
-            onWillPop: () => Future.value(false),
-            child: AlertDialog(
-              title: const Text('Keep playing?'),
-              content: const Text('Watch a video to continue playing.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    gameStream?.cancel();
-                    setState(() => showWatchVideoButton = false);
-                    Navigator.of(context).pop();
-                    _rewardedInterstitialAd?.show(
-                      onUserEarnedReward: (ad, reward) {},
-                    );
-                    _showGameOverScreen();
-                  },
-                  child: const Text('No'),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    setState(() {
-                      showWatchVideoButton = false;
-                      isGameOver = false;
-                      adShown = true;
-                      Navigator.of(context).pop();
-                    });
-                    await _rewardedAd?.show(
-                      onUserEarnedReward:
-                          (AdWithoutView ad, RewardItem rewardItem) {
-                        setState(
-                          () {
-                            gameStream?.resume();
-                            isGameOver = false;
-                            isPoison = false;
-                            isExtraFood = false;
-                            isObstacle = false;
-                            isBorder = false;
-                            adShown = true;
+  // Future<void> keepPlayingAd(StreamSubscription? gameStream) async {
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (BuildContext context) {
+  //       return Theme(
+  //         data: ThemeData(
+  //           dialogBackgroundColor: Colors.grey[800],
+  //           dialogTheme: const DialogTheme(
+  //             titleTextStyle: TextStyle(
+  //                 color: Color.fromARGB(255, 255, 255, 255),
+  //                 fontSize: 30,
+  //                 fontWeight: FontWeight.bold),
+  //             contentTextStyle: TextStyle(
+  //               color: Color.fromARGB(255, 248, 248, 248),
+  //               fontSize: 18,
+  //             ),
+  //           ),
+  //         ),
+  //         child: WillPopScope(
+  //           onWillPop: () => Future.value(false),
+  //           child: AlertDialog(
+  //             title: const Text('Keep playing?'),
+  //             content: const Text('Watch a video to continue playing.'),
+  //             actions: [
+  //               TextButton(
+  //                 onPressed: () {
+  //                   gameStream?.cancel();
+  //                   setState(() => showWatchVideoButton = false);
+  //                   Navigator.of(context).pop();
+  //                   _rewardedInterstitialAd?.show(
+  //                     onUserEarnedReward: (ad, reward) {},
+  //                   );
+  //                   _showGameOverScreen();
+  //                 },
+  //                 child: const Text('No'),
+  //               ),
+  //               TextButton(
+  //                 onPressed: () async {
+  //                   setState(() {
+  //                     showWatchVideoButton = false;
+  //                     isGameOver = false;
+  //                     adShown = true;
+  //                     Navigator.of(context).pop();
+  //                   });
+  //                   await _rewardedAd?.show(
+  //                     onUserEarnedReward:
+  //                         (AdWithoutView ad, RewardItem rewardItem) {
+  //                       setState(
+  //                         () {
+  //                           gameStream?.resume();
+  //                           isGameOver = false;
+  //                           isPoison = false;
+  //                           isExtraFood = false;
+  //                           isObstacle = false;
+  //                           isBorder = false;
+  //                           adShown = true;
 
-                            for (int i = 0; i < snakePosition.length; i++) {
-                              snakePosition[i] = 55;
-                            }
-                            snakePosition.last = 77;
-                            direction = 'down';
+  //                           for (int i = 0; i < snakePosition.length; i++) {
+  //                             snakePosition[i] = 55;
+  //                           }
+  //                           snakePosition.last = 77;
+  //                           direction = 'down';
 
-                            togglePause();
-                          },
-                        );
-                      },
-                    );
-                  },
-                  child: const Text('Yes'),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  //                           togglePause();
+  //                         },
+  //                       );
+  //                     },
+  //                   );
+  //                 },
+  //                 child: const Text('Yes'),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   Future<String?> getUsername() async {
     var user = FirebaseAuth.instance.currentUser;
@@ -555,13 +555,13 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     isExtraFood = false;
     isObstacle = false;
     isBorder = false;
-    showWatchVideoButton = true;
+    // showWatchVideoButton = true;
     adShown = false;
 
     await DefaultCacheManager().emptyCache();
 
-    _loadRewardedAd();
-    _loadRewardedInterstitialAd();
+    // _loadRewardedAd();
+    // _loadRewardedInterstitialAd();
 
     snakePosition = [76, 98, 120, 142, 164];
 
@@ -577,18 +577,29 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
             gameOverAudio.play(AssetSource('gameover.wav'));
           }
 
-          if (!adShown) {
-            gameStream?.pause();
-            await keepPlayingAd(gameStream);
-          } else {
-            gameStream?.cancel();
-            if (_rewardedInterstitialAd != null) {
-              _rewardedInterstitialAd?.show(
-                onUserEarnedReward: (ad, reward) {},
-              );
-            }
-            _showGameOverScreen();
-          }
+          gameStream?.cancel();
+          _showGameOverScreen();
+          setState(() {
+            isGameStart = true;
+            isPoison = false;
+            isExtraFood = false;
+            isObstacle = false;
+            isBorder = false;
+          });
+
+
+          // if (!adShown) {
+          //   gameStream?.pause();
+          //   await keepPlayingAd(gameStream);
+          // } else {
+          //   gameStream?.cancel();
+          //   if (_rewardedInterstitialAd != null) {
+          //     _rewardedInterstitialAd?.show(
+          //       onUserEarnedReward: (ad, reward) {},
+          //     );
+          //   }
+          //   _showGameOverScreen();
+          // }
         } else {
           gameStream?.cancel();
           setState(() {
@@ -1162,38 +1173,53 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                     ),
                     Row(
                       children: [
-                        // IconButton(
-                        //   icon: const Icon(
-                        //     Icons.person,
-                        //     color: Colors.white,
-                        //   ),
-                        //   onPressed: profile,
-                        // ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.leaderboard,
-                            color: Colors.white,
-                          ),
-                          onPressed: leaderboards,
-                        ),
-                        IconButton(
-                          onPressed: restart,
-                          icon: const Icon(
-                            Icons.restart_alt,
-                            color: Colors.white,
+                        SizedBox(
+                          width: 35,
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.person,
+                              color: Colors.white,
+                            ),
+                            onPressed: profile,
                           ),
                         ),
-                        IconButton(
-                          onPressed: settings,
-                          icon: const Icon(
-                            Icons.settings,
-                            color: Colors.white,
+                        SizedBox(
+                          width: 35,
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.leaderboard,
+                              color: Colors.white,
+                            ),
+                            onPressed: leaderboards,
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.logout),
-                          color: Colors.white,
-                          onPressed: signoff,
+                        SizedBox(
+                          width: 35,
+                          child: IconButton(
+                            onPressed: restart,
+                            icon: const Icon(
+                              Icons.restart_alt,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 35,
+                          child: IconButton(
+                            onPressed: settings,
+                            icon: const Icon(
+                              Icons.settings,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 35,
+                          child: IconButton(
+                            icon: const Icon(Icons.logout),
+                            color: Colors.white,
+                            onPressed: signoff,
+                          ),
                         ),
                       ],
                     ),

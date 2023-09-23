@@ -9,7 +9,11 @@ class Leaderboard extends StatefulWidget {
   final int? score;
   final Color? color;
 
-  const Leaderboard({super.key, required this.username, required this.score, required this.color});
+  const Leaderboard(
+      {super.key,
+      required this.username,
+      required this.score,
+      required this.color});
 
   @override
   LeaderboardState createState() => LeaderboardState();
@@ -168,12 +172,10 @@ class LeaderboardState extends State<Leaderboard> {
                       gap: 4,
                       color: Colors.grey[800],
                       activeColor: widget.color,
-                      iconSize: 24, 
-                      tabBackgroundColor: widget.color
-                          !.withOpacity(0.1), 
+                      iconSize: 24,
+                      tabBackgroundColor: widget.color!.withOpacity(0.1),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 5), 
+                          horizontal: 20, vertical: 5),
                       tabs: const [
                         GButton(
                           icon: Icons.today,
@@ -207,29 +209,34 @@ class LeaderboardState extends State<Leaderboard> {
                         });
                       },
                     ),
-                    const SizedBox(
-                      height: 15,
-                    ),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        const SizedBox(
+                          height: 15,
+                        ),
                         FutureBuilder(
                           future: letsGetDocIds,
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.done) {
-                              return Column(
-                                children: [
-                                  for (var entry in highscores.entries)
-                                    HighscoreTile(
-                                      name: entry.key,
-                                      highscore: entry.value,
+                              return SizedBox(
+                                height: MediaQuery.of(context).size.height * 0.75,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: highscores.length,
+                                  itemBuilder: (context, index) {
+                                    return HighscoreTile(
+                                      name: highscores.keys.elementAt(index),
+                                      highscore:
+                                          highscores.values.elementAt(index),
                                       username: username,
                                       score: score,
                                       fontSize: 20,
-                                    ),
-                                ],
+                                    );
+                                  },
+                                ),
                               );
                             } else {
                               return const CircularProgressIndicator();
@@ -244,7 +251,7 @@ class LeaderboardState extends State<Leaderboard> {
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(100, 50),
                     backgroundColor: widget.color,
-                    foregroundColor: Colors.white,
+                    foregroundColor: widget.color != Colors.white ? Colors.white : Colors.black,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16.0),
                     ),
