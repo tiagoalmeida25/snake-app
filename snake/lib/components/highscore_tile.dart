@@ -6,6 +6,7 @@ class HighscoreTile extends StatelessWidget {
   final String? username;
   final int? score;
   final double fontSize;
+  final String? rank;
 
   const HighscoreTile(
       {Key? key,
@@ -13,6 +14,7 @@ class HighscoreTile extends StatelessWidget {
       required this.highscore,
       required this.username,
       required this.score,
+      this.rank = '',
       this.fontSize = 16})
       : super(key: key);
 
@@ -33,12 +35,35 @@ class HighscoreTile extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  name!,
-                  style: TextStyle(
-                    fontSize: fontSize,
-                    color: name == username ? Colors.black : Colors.white,
-                  ),
+                Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: Container(
+                        color: Colors.grey,
+                        height: 24,
+                        width: 24,
+                        child: Center(
+                          child: Text(rank!,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: fontSize,
+                                color: name == username
+                                    ? Colors.black
+                                    : Colors.white,
+                              )),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      name!,
+                      style: TextStyle(
+                        fontSize: fontSize,
+                        color: name == username ? Colors.black : Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
                 Text(
                   highscore.toString(),

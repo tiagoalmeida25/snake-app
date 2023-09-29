@@ -2,8 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:snake/components/username_textfield.dart';
-import 'package:snake/highscore_tile.dart';
+import 'package:snake/components/highscore_tile.dart';
 
 class Profile extends StatefulWidget {
   final String? username;
@@ -729,7 +728,7 @@ class _ProfileState extends State<Profile> {
                 ),
               ),
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(context, usernameController.text);
               },
               child: const Text('Back', style: TextStyle(fontSize: 20)),
             ),

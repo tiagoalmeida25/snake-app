@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:snake/highscore_tile.dart';
+import 'package:snake/components/highscore_tile.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
 class Leaderboard extends StatefulWidget {
@@ -233,6 +233,7 @@ class LeaderboardState extends State<Leaderboard> {
                                           highscores.values.elementAt(index),
                                       username: username,
                                       score: score,
+                                      rank: (index + 1).toString(),
                                       fontSize: 20,
                                     );
                                   },

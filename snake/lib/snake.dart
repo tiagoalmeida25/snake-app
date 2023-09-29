@@ -7,7 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 // import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:snake/components/personalization.dart';
-import 'package:snake/highscore_tile.dart';
+import 'package:snake/components/highscore_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:snake/leaderboard.dart';
@@ -70,22 +70,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   int food = randomNumber.nextInt(702);
   List<int> extraFood = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
   List<int> obstacles = [
-    -1,
-    -1,
-    -1,
-    -1,
-    -1,
-    -1,
-    -1,
-    -1,
-    -1,
-    -1,
-    -1,
-    -1,
-    -1,
-    -1,
-    -1,
-    -1,
+    48, 49, 70, 71, 104,105, 126, 127, 230, 231, 253, 254, 354, 355, 356, 376, 377, 378, 482, 483, 504, 505, 625, 626, 647, 648
   ];
   List<int> borders = [
     for (int i = 0; i < 22; i++) i,
@@ -137,57 +122,6 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
             extraFood[i] == poison ||
             borders.contains(extraFood[i])) {
           extraFood[i] = randomNumber.nextInt(704);
-        }
-      }
-    }
-
-    if (isObstacle) {
-      if (score >= 100) {
-        obstacles = [
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1
-        ];
-      } else if (score >= 150) {
-        obstacles = [
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-          -1,
-        ];
-      } else if (score >= 200) {
-        obstacles = [-1, -1, -1, -1, -1, -1 - 1, -1, -1, -1];
-      }
-
-      for (int i = 0; i < obstacles.length; i++) {
-        obstacles[i] = randomNumber.nextInt(702);
-
-        while (snakePosition.contains(obstacles[i]) ||
-            obstacles[i] == poison ||
-            obstacles[i] == food) {
-          obstacles[i] = randomNumber.nextInt(702);
-        }
-        for (int j = 0; j < extraFood.length; j++) {
-          if (obstacles[i] == extraFood[j]) {
-            obstacles[i] = randomNumber.nextInt(702);
-          }
         }
       }
     }
@@ -1021,7 +955,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             SizedBox(
-                              height: 350,
+                              height: MediaQuery.of(context).size.height * 0.7,
                               child: ListView.builder(
                                 itemCount: highscores.length,
                                 itemBuilder: (context, index) {
@@ -1034,6 +968,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                                     highscore: highscore,
                                     username: name,
                                     score: score,
+                                    rank: (index + 1).toString(),
                                   );
                                 },
                               ),
@@ -1062,15 +997,21 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     );
   }
 
-  void profile() {
+  void profile() async {
     togglePause();
 
-    Navigator.push(
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => Profile(username: name, color: foodColor),
       ),
     );
+
+    if (result != null) {
+      setState(() {
+        name = result[0];
+      });
+    }
   }
 
   @override
