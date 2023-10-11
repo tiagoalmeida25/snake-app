@@ -48,7 +48,6 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
 
   bool isPoison = false;
   bool isExtraFood = false;
-  bool isObstacle = false;
   bool isBorder = false;
 
   // bool showWatchVideoButton = true;
@@ -69,9 +68,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   static var randomNumber = Random();
   int food = randomNumber.nextInt(702);
   List<int> extraFood = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
-  List<int> obstacles = [
-    48, 49, 70, 71, 104,105, 126, 127, 230, 231, 253, 254, 354, 355, 356, 376, 377, 378, 482, 483, 504, 505, 625, 626, 647, 648
-  ];
+
   List<int> borders = [
     for (int i = 0; i < 22; i++) i,
     for (int i = 22; i < 704; i += 22) i,
@@ -423,7 +420,6 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   //                           isGameOver = false;
   //                           isPoison = false;
   //                           isExtraFood = false;
-  //                           isObstacle = false;
   //                           isBorder = false;
   //                           adShown = true;
 
@@ -487,7 +483,6 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     isGameOnPause = false;
     isPoison = false;
     isExtraFood = false;
-    isObstacle = false;
     isBorder = false;
     // showWatchVideoButton = true;
     adShown = false;
@@ -504,6 +499,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
 
     gameStream = Stream.periodic(duration).listen((_) async {
       score = snakePosition.length - 5;
+      // score = snakePosition.length + 29;
 
       if (gameOver() || isGameOver) {
         if (isGameOverScreen) {
@@ -517,7 +513,6 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
             isGameStart = true;
             isPoison = false;
             isExtraFood = false;
-            isObstacle = false;
             isBorder = false;
           });
 
@@ -540,7 +535,6 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
             isGameStart = true;
             isPoison = false;
             isExtraFood = false;
-            isObstacle = false;
             isBorder = false;
           });
         }
@@ -589,17 +583,6 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
             break;
 
           default:
-        }
-        if (isObstacle) {
-          for (int i = 0; i < obstacles.length; i++) {
-            if (snakePosition.last == obstacles[i]) {
-              isGameOver = true;
-              reasonForGameOver = 'You ran into an obstacle!';
-              if (isSoundOn) {
-                losingAudio.play(AssetSource('ai.wav'));
-              }
-            }
-          }
         }
         if (isBorder) {
           for (int i = 0; i < borders.length; i++) {
@@ -651,19 +634,6 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
             }
           } else if (isPoison && (score - 2) % 10 == 0 && score > 10) {
             isPoison = false;
-          }
-          if (!isObstacle && (score + 1) % 35 == 0 && score > 10) {
-            isObstacle = true;
-            Fluttertoast.showToast(
-              msg: "Look out for the obstacles!",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.TOP,
-              backgroundColor: Colors.green,
-              textColor: Colors.white,
-              fontSize: 16.0,
-            );
-          } else if (isObstacle && (score - 1) % 35 == 0 && score > 10) {
-            isObstacle = false;
           }
           if (!isBorder && (score + 1) % 25 == 0 && score > 10) {
             isBorder = true;
@@ -955,7 +925,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.7,
+                              height: MediaQuery.of(context).size.height * 0.6,
                               child: ListView.builder(
                                 itemCount: highscores.length,
                                 itemBuilder: (context, index) {
@@ -1254,17 +1224,6 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                                   borderRadius: BorderRadius.circular(8),
                                   child: Container(
                                     color: foodColor,
-                                  ),
-                                ),
-                              );
-                            }
-                            if (isObstacle && obstacles.contains(index)) {
-                              return Container(
-                                padding: const EdgeInsets.all(2),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Container(
-                                    color: Colors.blueGrey,
                                   ),
                                 ),
                               );

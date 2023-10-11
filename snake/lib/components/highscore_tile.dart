@@ -40,7 +40,7 @@ class HighscoreTile extends StatelessWidget {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(24),
                       child: Container(
-                        color: Colors.grey,
+                        color: rank! == '1' ? Colors.amber : rank! == '2' ? Colors.grey : rank! == '3' ? Colors.brown : Colors.grey,
                         height: 24,
                         width: 24,
                         child: Center(
