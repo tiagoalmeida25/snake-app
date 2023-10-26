@@ -35,7 +35,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   RewardedAd? _rewardedAd;
   // RewardedInterstitialAd? _rewardedInterstitialAd;
 
-  final String _adUnitIdRewarded = 'ca-app-pub-6337096519310369/3689339358';
+  final String _adUnitIdRewarded = 'ca-app-pub-6337096519310369/2450859394';
   // final String _adUnitIdRewarded = 'ca-app-pub-3940256099942544/5224354917';
   // final String _adUnitIdRewardedInterstitial =
   //     'ca-app-pub-6337096519310369/9216233864';

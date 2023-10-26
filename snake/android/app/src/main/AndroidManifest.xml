@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.snake">
-   <application
+    <application
         android:label="snake"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
@@ -34,4 +34,5 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-6337096519310369~4973349483"/>
     </application>
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
 </manifest>
