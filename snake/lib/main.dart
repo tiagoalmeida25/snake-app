@@ -15,6 +15,10 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MobileAds.instance.initialize();
+  RequestConfiguration requestConfiguration = RequestConfiguration(
+    testDeviceIds: ['5D0B77BBF9CD6FE21E2B8545F1154492'],
+  );
+  MobileAds.instance.updateRequestConfiguration(requestConfiguration);
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

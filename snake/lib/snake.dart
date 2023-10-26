@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-// import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:snake/components/personalization.dart';
 import 'package:snake/components/highscore_tile.dart';
@@ -32,12 +32,13 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
 
   static List<int> snakePosition = [76, 98, 120, 142, 164];
 
-  // RewardedAd? _rewardedAd;
+  RewardedAd? _rewardedAd;
   // RewardedInterstitialAd? _rewardedInterstitialAd;
 
+  final String _adUnitIdRewarded = 'ca-app-pub-6337096519310369/3689339358';
+  // final String _adUnitIdRewarded = 'ca-app-pub-3940256099942544/5224354917';
   // final String _adUnitIdRewardedInterstitial =
   //     'ca-app-pub-6337096519310369/9216233864';
-  // final String _adUnitIdRewarded = 'ca-app-pub-6337096519310369/3689339358';
 
   bool readMove = true;
   bool isGameStart = true;
@@ -50,7 +51,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   bool isExtraFood = false;
   bool isBorder = false;
 
-  // bool showWatchVideoButton = true;
+  bool showWatchVideoButton = true;
 
   String? name;
   int playerPosition = 0;
@@ -127,7 +128,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    // _rewardedAd?.dispose();
+    _rewardedAd?.dispose();
     // _rewardedInterstitialAd?.dispose();
     super.dispose();
   }
@@ -227,8 +228,8 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   }
 
   void settings() async {
-    isGameOnPause = true;
-
+    togglePause();
+    
     final result = await Navigator.push(
         context,
         MaterialPageRoute(
@@ -280,7 +281,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
         default:
       }
 
-      if(previousTimeLength != timeLength){
+      if (previousTimeLength != timeLength) {
         isGameOver = true;
         isGameOverScreen = false;
       }
@@ -340,110 +341,110 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
   //   );
   // }
 
-  // void _loadRewardedAd() {
-  //   RewardedAd.load(
-  //     adUnitId: _adUnitIdRewarded,
-  //     request: const AdRequest(),
-  //     rewardedAdLoadCallback: RewardedAdLoadCallback(
-  //       onAdLoaded: (ad) {
-  //         ad.fullScreenContentCallback = FullScreenContentCallback(
-  //           onAdShowedFullScreenContent: (ad) {},
-  //           onAdImpression: (ad) {},
-  //           onAdFailedToShowFullScreenContent: (ad, err) {
-  //             ad.dispose();
-  //           },
-  //           onAdDismissedFullScreenContent: (ad) {
-  //             ad.dispose();
-  //           },
-  //           onAdClicked: (ad) {},
-  //         );
-  //         _rewardedAd = ad;
-  //       },
-  //       onAdFailedToLoad: (LoadAdError error) {
-  //         debugPrint('RewardedAd failed to load: $error');
-  //       },
-  //     ),
-  //   );
-  // }
+  void _loadRewardedAd() {
+    RewardedAd.load(
+      adUnitId: _adUnitIdRewarded,
+      request: const AdRequest(),
+      rewardedAdLoadCallback: RewardedAdLoadCallback(
+        onAdLoaded: (ad) {
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdShowedFullScreenContent: (ad) {},
+            onAdImpression: (ad) {},
+            onAdFailedToShowFullScreenContent: (ad, err) {
+              ad.dispose();
+            },
+            onAdDismissedFullScreenContent: (ad) {
+              ad.dispose();
+            },
+            onAdClicked: (ad) {},
+          );
+          _rewardedAd = ad;
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          debugPrint('RewardedAd failed to load: $error');
+        },
+      ),
+    );
+  }
 
-  // Future<void> keepPlayingAd(StreamSubscription? gameStream) async {
-  //   showDialog(
-  //     context: context,
-  //     barrierDismissible: false,
-  //     builder: (BuildContext context) {
-  //       return Theme(
-  //         data: ThemeData(
-  //           dialogBackgroundColor: Colors.grey[800],
-  //           dialogTheme: const DialogTheme(
-  //             titleTextStyle: TextStyle(
-  //                 color: Color.fromARGB(255, 255, 255, 255),
-  //                 fontSize: 30,
-  //                 fontWeight: FontWeight.bold),
-  //             contentTextStyle: TextStyle(
-  //               color: Color.fromARGB(255, 248, 248, 248),
-  //               fontSize: 18,
-  //             ),
-  //           ),
-  //         ),
-  //         child: WillPopScope(
-  //           onWillPop: () => Future.value(false),
-  //           child: AlertDialog(
-  //             title: const Text('Keep playing?'),
-  //             content: const Text('Watch a video to continue playing.'),
-  //             actions: [
-  //               TextButton(
-  //                 onPressed: () {
-  //                   gameStream?.cancel();
-  //                   setState(() => showWatchVideoButton = false);
-  //                   Navigator.of(context).pop();
-  //                   _rewardedInterstitialAd?.show(
-  //                     onUserEarnedReward: (ad, reward) {},
-  //                   );
-  //                   _showGameOverScreen();
-  //                 },
-  //                 child: const Text('No'),
-  //               ),
-  //               TextButton(
-  //                 onPressed: () async {
-  //                   setState(() {
-  //                     showWatchVideoButton = false;
-  //                     isGameOver = false;
-  //                     adShown = true;
-  //                     Navigator.of(context).pop();
-  //                   });
-  //                   await _rewardedAd?.show(
-  //                     onUserEarnedReward:
-  //                         (AdWithoutView ad, RewardItem rewardItem) {
-  //                       setState(
-  //                         () {
-  //                           gameStream?.resume();
-  //                           isGameOver = false;
-  //                           isPoison = false;
-  //                           isExtraFood = false;
-  //                           isBorder = false;
-  //                           adShown = true;
+  Future<void> keepPlayingAd(StreamSubscription? gameStream) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Theme(
+          data: ThemeData(
+            dialogBackgroundColor: Colors.grey[800],
+            dialogTheme: const DialogTheme(
+              titleTextStyle: TextStyle(
+                  color: Color.fromARGB(255, 255, 255, 255),
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold),
+              contentTextStyle: TextStyle(
+                color: Color.fromARGB(255, 248, 248, 248),
+                fontSize: 18,
+              ),
+            ),
+          ),
+          child: WillPopScope(
+            onWillPop: () => Future.value(false),
+            child: AlertDialog(
+              title: const Text('Keep playing?'),
+              content: const Text('Watch a video to continue playing.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    gameStream?.cancel();
+                    setState(() => showWatchVideoButton = false);
+                    Navigator.of(context).pop();
+                    // _rewardedInterstitialAd?.show(
+                    //   onUserEarnedReward: (ad, reward) {},
+                    // );
+                    _showGameOverScreen();
+                  },
+                  child: const Text('No'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    setState(() {
+                      showWatchVideoButton = false;
+                      isGameOver = false;
+                      adShown = true;
+                      Navigator.of(context).pop();
+                    });
+                    await _rewardedAd?.show(
+                      onUserEarnedReward:
+                          (AdWithoutView ad, RewardItem rewardItem) {
+                        setState(
+                          () {
+                            gameStream?.resume();
+                            isGameOver = false;
+                            isPoison = false;
+                            isExtraFood = false;
+                            isBorder = false;
+                            adShown = true;
 
-  //                           for (int i = 0; i < snakePosition.length; i++) {
-  //                             snakePosition[i] = 55;
-  //                           }
-  //                           snakePosition.last = 77;
-  //                           direction = 'down';
+                            for (int i = 0; i < snakePosition.length; i++) {
+                              snakePosition[i] = 55;
+                            }
+                            snakePosition.last = 77;
+                            direction = 'down';
 
-  //                           togglePause();
-  //                         },
-  //                       );
-  //                     },
-  //                   );
-  //                 },
-  //                 child: const Text('Yes'),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
+                            togglePause();
+                          },
+                        );
+                      },
+                    );
+                  },
+                  child: const Text('Yes'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   Future<String?> getUsername() async {
     var user = FirebaseAuth.instance.currentUser;
@@ -484,12 +485,12 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     isPoison = false;
     isExtraFood = false;
     isBorder = false;
-    // showWatchVideoButton = true;
+    showWatchVideoButton = true;
     adShown = false;
 
     await DefaultCacheManager().emptyCache();
 
-    // _loadRewardedAd();
+    _loadRewardedAd();
     // _loadRewardedInterstitialAd();
 
     snakePosition = [76, 98, 120, 142, 164];
@@ -499,7 +500,8 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
 
     gameStream = Stream.periodic(duration).listen((_) async {
       score = snakePosition.length - 5;
-      // score = snakePosition.length + 29;
+      // isBorder = true;
+      // score = snakePosition.length + 30;
 
       if (gameOver() || isGameOver) {
         if (isGameOverScreen) {
@@ -507,28 +509,30 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
             gameOverAudio.play(AssetSource('gameover.wav'));
           }
 
-          gameStream?.cancel();
-          _showGameOverScreen();
-          setState(() {
-            isGameStart = true;
-            isPoison = false;
-            isExtraFood = false;
-            isBorder = false;
-          });
+          // gameStream?.cancel();
+          // _showGameOverScreen();
+          // setState(() {
+          //   isGameStart = true;
+          //   isPoison = false;
+          //   isExtraFood = false;
+          //   isBorder = false;
+          // });
 
+          print('adShown: $adShown');
+          print('_rewardedAd: $_rewardedAd');
 
-          // if (!adShown) {
-          //   gameStream?.pause();
-          //   await keepPlayingAd(gameStream);
-          // } else {
-          //   gameStream?.cancel();
-          //   if (_rewardedInterstitialAd != null) {
-          //     _rewardedInterstitialAd?.show(
-          //       onUserEarnedReward: (ad, reward) {},
-          //     );
-          //   }
-          //   _showGameOverScreen();
-          // }
+          if (!adShown && _rewardedAd != null) {
+            gameStream?.pause();
+            await keepPlayingAd(gameStream);
+          } else {
+            gameStream?.cancel();
+            // if (_rewardedInterstitialAd != null) {
+            //   _rewardedInterstitialAd?.show(
+            //     onUserEarnedReward: (ad, reward) {},
+            //   );
+            // }
+            _showGameOverScreen();
+          }
         } else {
           gameStream?.cancel();
           setState(() {
@@ -1000,13 +1004,31 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
     double desiredWidth = (rowSize + .5) * sizeSquare;
 
     var paddingToAdd = 0.0;
-    if (desiredWidth < screenWidth) {
-      paddingToAdd = (screenWidth - desiredWidth) / 2;
+    if (availableHeight < desiredHeight) {
+      setState(() {
+        paddingToAdd = (desiredHeight - availableHeight) / 2;
+      });
+
+      if (screenWidth < desiredWidth + 10 + paddingToAdd) {
+        setState(() {
+          paddingToAdd -= (desiredWidth + 10 + paddingToAdd - screenWidth) / 3;
+        });
+      }
     }
 
-    if (desiredHeight > availableHeight) {
-      desiredHeight = availableHeight;
+    if (availableHeight > desiredHeight) {
+      setState(() {
+        availableHeight = desiredHeight;
+      });
     }
+
+    // print('\nWidth:');
+    // print('   desired width: ${desiredWidth.toStringAsFixed(2)} + ${paddingToAdd.toStringAsFixed(2)} = ${(screenWidth + paddingToAdd).toStringAsFixed(2)}' );
+    // print('   available width: $screenWidth');
+    // print('Height:');
+    // print('   desired height: ${desiredHeight.toStringAsFixed(2)}');
+    // print('   available height: $availableHeight');
+    // print('padding: $paddingToAdd');
 
     return WillPopScope(
       onWillPop: () async {
@@ -1138,9 +1160,9 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4.0 + paddingToAdd),
+                padding: EdgeInsets.symmetric(horizontal: 10.0 + paddingToAdd),
                 child: SizedBox(
-                  height: desiredHeight,
+                  height: availableHeight,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: Container(
@@ -1194,7 +1216,864 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                                   ),
                                 ),
                               );
+                              // int snakeHead = snakePosition.last;
+                              // int snakePos =
+                              //     snakePosition.elementAt(snakePosition.length - 2);
+
+                              // if (snakePos == snakeHead - 1) {
+                              //   return Center(
+                              //     child: Container(
+                              //       padding: const EdgeInsets.only(
+                              //           top: 2, bottom: 2, left: 0, right: 2),
+                              //       child: ClipRRect(
+                              //         borderRadius: BorderRadius.only(
+                              //           topRight: Radius.circular(64),
+                              //           bottomRight: Radius.circular(64),
+                              //           topLeft: Radius.circular(32),
+                              //           bottomLeft: Radius.circular(32),
+                              //         ),
+                              //         child: Container(color: snakeColor),
+                              //       ),
+                              //     ),
+                              //   );
+                              // }
+                              // else{
+                              //     return Center(
+                              //       child: Container(
+                              //         padding: const EdgeInsets.all(2),
+                              //         child: ClipRRect(
+                              //           borderRadius: BorderRadius.circular(32),
+                              //           child: Container(color: snakeColor),
+                              //         ),
+                              //       ),
+                              //     );
+                              //   // }
+                              // }
+                              // if (index == snakePosition.first) {
+                              //   if (snakePosition.first ==
+                              //       snakePosition.elementAt(1) + 22) {
+                              //     return Container(
+                              //       padding: const EdgeInsets.only(
+                              //           top: 0, bottom: 0, left: 4, right: 4),
+                              //       child: ClipRRect(
+                              //         borderRadius: const BorderRadius.only(
+                              //           bottomLeft: Radius.circular(64),
+                              //           bottomRight: Radius.circular(64),
+                              //           topLeft: Radius.circular(4),
+                              //           topRight: Radius.circular(4),
+                              //         ),
+                              //         child: Container(
+                              //           color: snakeColor,
+                              //         ),
+                              //       ),
+                              //     );
+                              //   } else if (snakePosition.first ==
+                              //       snakePosition.elementAt(1) - 22) {
+                              //     return Container(
+                              //       padding: const EdgeInsets.only(
+                              //           top: 0, bottom: 0, left: 4, right: 4),
+                              //       child: ClipRRect(
+                              //         borderRadius: const BorderRadius.only(
+                              //           topLeft: Radius.circular(64),
+                              //           topRight: Radius.circular(64),
+                              //           bottomLeft: Radius.circular(4),
+                              //           bottomRight: Radius.circular(4),
+                              //         ),
+                              //         child: Container(
+                              //           color: snakeColor,
+                              //         ),
+                              //       ),
+                              //     );
+                              //   } else if (snakePosition.first ==
+                              //       snakePosition.elementAt(1) - 1) {
+                              //     return Container(
+                              //       padding: const EdgeInsets.only(
+                              //           top: 4, bottom: 4, left: 0, right: 0),
+                              //       child: ClipRRect(
+                              //         borderRadius: const BorderRadius.only(
+                              //           topLeft: Radius.circular(64),
+                              //           topRight: Radius.circular(4),
+                              //           bottomLeft: Radius.circular(64),
+                              //           bottomRight: Radius.circular(4),
+                              //         ),
+                              //         child: Container(
+                              //           color: snakeColor,
+                              //         ),
+                              //       ),
+                              //     );
+                              //   } else if (snakePosition.first ==
+                              //       snakePosition.elementAt(1) + 1) {
+                              //     return Container(
+                              //       padding: const EdgeInsets.only(
+                              //           top: 4, bottom: 4, left: 0, right: 0),
+                              //       child: ClipRRect(
+                              //         borderRadius: const BorderRadius.only(
+                              //           topLeft: Radius.circular(4),
+                              //           topRight: Radius.circular(64),
+                              //           bottomLeft: Radius.circular(4),
+                              //           bottomRight: Radius.circular(64),
+                              //         ),
+                              //         child: Container(
+                              //           color: snakeColor,
+                              //         ),
+                              //       ),
+                              //     );
+                              //   }
                             }
+                            // if (snakePosition
+                            //         .elementAt(snakePosition.length - 2) ==
+                            //     index) {
+                            //   int snakePos = snakePosition
+                            //       .elementAt(snakePosition.length - 2);
+                            //   int snakeHead = snakePosition.last;
+                            //   int nextSnakePos =
+                            //       snakePosition.elementAt(snakePosition.length - 3);
+
+                            //   if (snakePos == snakeHead - 1 &&
+                            //       snakePos == nextSnakePos + 22) {
+                            //     return Center(
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.only(
+                            //             top: 0, bottom: 4, left: 4, right: 0),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             bottomLeft: Radius.circular(32),
+                            //           ),
+                            //           child: Stack(children: [
+                            //             Container(
+                            //               width: sizeSquare,
+                            //               height: sizeSquare,
+                            //               color: snakeColor,
+                            //             ),
+                            //             Positioned(
+                            //               right: 0,
+                            //               top: 0,
+                            //               child: ClipRRect(
+                            //                 borderRadius:
+                            //                     const BorderRadius.only(
+                            //                   bottomLeft: Radius.circular(32),
+                            //                   topLeft: Radius.circular(4),
+                            //                   topRight: Radius.circular(4),
+                            //                 ),
+                            //                 child: Container(
+                            //                   width: 4,
+                            //                   height: 4,
+                            //                   color: gridColor,
+                            //                 ),
+                            //               ),
+                            //             )
+                            //           ]),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   } else if (snakePos == snakeHead + 1 &&
+                            //       snakePos == nextSnakePos + 22) {
+                            //     return Center(
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.only(
+                            //             top: 0, bottom: 4, left: 0, right: 4),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             bottomRight: Radius.circular(32),
+                            //             bottomLeft: Radius.circular(4),
+                            //             topLeft: Radius.circular(4),
+                            //           ),
+                            //           child: Stack(children: [
+                            //             Container(
+                            //               width: sizeSquare,
+                            //               height: sizeSquare,
+                            //               color: snakeColor,
+                            //             ),
+                            //             Positioned(
+                            //               left: 0,
+                            //               top: 0,
+                            //               child: ClipRRect(
+                            //                 borderRadius:
+                            //                     const BorderRadius.only(
+                            //                   bottomRight: Radius.circular(32),
+                            //                 ),
+                            //                 child: Container(
+                            //                   width: 4,
+                            //                   height: 4,
+                            //                   color: gridColor,
+                            //                 ),
+                            //               ),
+                            //             )
+                            //           ]),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   } else if (snakePos == snakeHead - 1 &&
+                            //       snakePos == nextSnakePos - 22) {
+                            //     return Center(
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.only(
+                            //             top: 4, bottom: 0, left: 4, right: 0),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             topLeft: Radius.circular(32),
+                            //             topRight: Radius.circular(4),
+                            //             bottomRight: Radius.circular(4),
+                            //           ),
+                            //           child: Stack(children: [
+                            //             Container(
+                            //               width: sizeSquare,
+                            //               height: sizeSquare,
+                            //               color: snakeColor,
+                            //             ),
+                            //             Positioned(
+                            //               right: 0,
+                            //               bottom: 0,
+                            //               child: ClipRRect(
+                            //                 borderRadius:
+                            //                     const BorderRadius.only(
+                            //                   topLeft: Radius.circular(32),
+                            //                 ),
+                            //                 child: Container(
+                            //                   width: 4,
+                            //                   height: 4,
+                            //                   color: gridColor,
+                            //                 ),
+                            //               ),
+                            //             )
+                            //           ]),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   } else if (snakePos == snakeHead + 1 &&
+                            //       snakePos == nextSnakePos - 22) {
+                            //     return Center(
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.only(
+                            //             top: 4, bottom: 0, left: 0, right: 4),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             topRight: Radius.circular(32),
+                            //             topLeft: Radius.circular(4),
+                            //             bottomLeft: Radius.circular(4),
+                            //           ),
+                            //           child: Stack(children: [
+                            //             Container(
+                            //               width: sizeSquare,
+                            //               height: sizeSquare,
+                            //               color: snakeColor,
+                            //             ),
+                            //             Positioned(
+                            //               left: 0,
+                            //               bottom: 0,
+                            //               child: ClipRRect(
+                            //                 borderRadius:
+                            //                     const BorderRadius.only(
+                            //                   topRight: Radius.circular(32),
+                            //                 ),
+                            //                 child: Container(
+                            //                   width: 4,
+                            //                   height: 4,
+                            //                   color: gridColor,
+                            //                 ),
+                            //               ),
+                            //             )
+                            //           ]),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   } else if (snakePos == snakeHead + 22 &&
+                            //       snakePos == nextSnakePos + 1) {
+                            //     return Center(
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.only(
+                            //             top: 0, bottom: 4, left: 0, right: 4),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             bottomRight: Radius.circular(32),
+                            //             bottomLeft: Radius.circular(4),
+                            //             topLeft: Radius.circular(4),
+                            //           ),
+                            //           child: Stack(children: [
+                            //             Container(
+                            //               width: sizeSquare,
+                            //               height: sizeSquare,
+                            //               color: snakeColor,
+                            //             ),
+                            //             Positioned(
+                            //               left: 0,
+                            //               top: 0,
+                            //               child: ClipRRect(
+                            //                 borderRadius:
+                            //                     const BorderRadius.only(
+                            //                   bottomRight: Radius.circular(32),
+                            //                 ),
+                            //                 child: Container(
+                            //                   width: 4,
+                            //                   height: 4,
+                            //                   color: gridColor,
+                            //                 ),
+                            //               ),
+                            //             )
+                            //           ]),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   } else if (snakePos == snakeHead + 22 &&
+                            //       snakePos == nextSnakePos - 1) {
+                            //     return Center(
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.only(
+                            //             top: 0, bottom: 4, left: 4, right: 0),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             bottomLeft: Radius.circular(32),
+                            //             topLeft: Radius.circular(4),
+                            //             topRight: Radius.circular(4),
+                            //           ),
+                            //           child: Stack(children: [
+                            //             Container(
+                            //               width: sizeSquare,
+                            //               height: sizeSquare,
+                            //               color: snakeColor,
+                            //             ),
+                            //             Positioned(
+                            //               right: 0,
+                            //               top: 0,
+                            //               child: ClipRRect(
+                            //                 borderRadius:
+                            //                     const BorderRadius.only(
+                            //                   bottomLeft: Radius.circular(32),
+                            //                 ),
+                            //                 child: Container(
+                            //                   width: 4,
+                            //                   height: 4,
+                            //                   color: gridColor,
+                            //                 ),
+                            //               ),
+                            //             )
+                            //           ]),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   } else if (snakePos == snakeHead + 22 &&
+                            //       snakePos == nextSnakePos + 1) {
+                            //     return Center(
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.only(
+                            //             top: 0, bottom: 4, left: 0, right: 4),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             bottomRight: Radius.circular(32),
+                            //             bottomLeft: Radius.circular(4),
+                            //             topLeft: Radius.circular(4),
+                            //           ),
+                            //           child: Stack(children: [
+                            //             Container(
+                            //               width: sizeSquare,
+                            //               height: sizeSquare,
+                            //               color: snakeColor,
+                            //             ),
+                            //             Positioned(
+                            //               left: 0,
+                            //               top: 0,
+                            //               child: ClipRRect(
+                            //                 borderRadius:
+                            //                     const BorderRadius.only(
+                            //                   bottomRight: Radius.circular(32),
+                            //                 ),
+                            //                 child: Container(
+                            //                   width: 4,
+                            //                   height: 4,
+                            //                   color: gridColor,
+                            //                 ),
+                            //               ),
+                            //             )
+                            //           ]),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   } else if (snakePos == snakeHead - 22 &&
+                            //       snakePos == nextSnakePos - 1) {
+                            //     return Center(
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.only(
+                            //             top: 4, bottom: 0, left: 4, right: 0),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             topLeft: Radius.circular(32),
+                            //             topRight: Radius.circular(4),
+                            //             bottomRight: Radius.circular(4),
+                            //           ),
+                            //           child: Stack(children: [
+                            //             Container(
+                            //               width: sizeSquare,
+                            //               height: sizeSquare,
+                            //               color: snakeColor,
+                            //             ),
+                            //             Positioned(
+                            //               right: 0,
+                            //               bottom: 0,
+                            //               child: ClipRRect(
+                            //                 borderRadius:
+                            //                     const BorderRadius.only(
+                            //                   topLeft: Radius.circular(32),
+                            //                 ),
+                            //                 child: Container(
+                            //                   width: 4,
+                            //                   height: 4,
+                            //                   color: gridColor,
+                            //                 ),
+                            //               ),
+                            //             )
+                            //           ]),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   } else if (snakePos == snakeHead - 22 &&
+                            //       snakePos == nextSnakePos + 1) {
+                            //     return Center(
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.only(
+                            //             top: 4, bottom: 0, left: 0, right: 4),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             topRight: Radius.circular(32),
+                            //             topLeft: Radius.circular(4),
+                            //             bottomLeft: Radius.circular(4),
+                            //           ),
+                            //           child: Stack(children: [
+                            //             Container(
+                            //               width: sizeSquare,
+                            //               height: sizeSquare,
+                            //               color: snakeColor,
+                            //             ),
+                            //             Positioned(
+                            //               left: 0,
+                            //               bottom: 0,
+                            //               child: ClipRRect(
+                            //                 borderRadius:
+                            //                     const BorderRadius.only(
+                            //                   topRight: Radius.circular(32),
+                            //                 ),
+                            //                 child: Container(
+                            //                   width: 4,
+                            //                   height: 4,
+                            //                   color: gridColor,
+                            //                 ),
+                            //               ),
+                            //             )
+                            //           ]),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   }
+
+                            //   if (snakePos == snakeHead - 1) {
+                            //     return Center(
+                            //       child: Container(
+                            //         padding: const EdgeInsets.only(
+                            //           top: 4, bottom: 4, right: 0),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             topRight: Radius.circular(4),
+                            //             bottomRight: Radius.circular(4),
+                            //           ),
+                            //           child: Container(color: snakeColor),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   }
+                            //   else if (snakePos == snakeHead + 1) {
+                            //     return Center(
+                            //       child: Container(
+                            //         padding: const EdgeInsets.only(
+                            //             left:2, top: 4, bottom: 4),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             topLeft: Radius.circular(4),
+                            //             bottomLeft: Radius.circular(4),
+                            //           ),
+                            //           child: Container(color: snakeColor),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   }
+                            //   else if (snakePos == snakeHead + 22) {
+                            //     return Center(
+                            //       child: Container(
+                            //         padding: const EdgeInsets.only(top: 0, left: 4, right: 4),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             topLeft: Radius.circular(4),
+                            //             topRight: Radius.circular(4),
+                            //           ),
+                            //           child: Container(color: snakeColor),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   }
+                            //   else if (snakePos == snakeHead - 22) {
+                            //     return Center(
+                            //       child: Container(
+                            //         padding: const EdgeInsets.only(
+                            //           bottom: 0, left: 4, right: 4),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             bottomLeft: Radius.circular(4),
+                            //             bottomRight: Radius.circular(4),
+                            //           ),
+                            //           child: Container(color: snakeColor),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   }
+                            // } else if (snakePosition.contains(index)) {
+                            //   int snakeIndex = snakePosition
+                            //       .indexWhere((element) => element == index);
+                            //   int snakePos =
+                            //       snakePosition.elementAt(snakeIndex);
+                            //   int nextSnakePos =
+                            //       snakePosition.elementAt(snakeIndex - 1);
+                            //   int previousSnakePos =
+                            //       snakePosition.elementAt(snakeIndex + 1);
+
+                            //   if (snakePos == previousSnakePos - 1 &&
+                            //       snakePos == nextSnakePos + 22) {
+                            //     return Center(
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.only(
+                            //             top: 0, bottom: 4, left: 4, right: 0),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             bottomLeft: Radius.circular(32),
+                            //           ),
+                            //           child: Stack(children: [
+                            //             Container(
+                            //               width: sizeSquare,
+                            //               height: sizeSquare,
+                            //               color: snakeColor,
+                            //             ),
+                            //             Positioned(
+                            //               right: 0,
+                            //               top: 0,
+                            //               child: ClipRRect(
+                            //                 borderRadius:
+                            //                     const BorderRadius.only(
+                            //                   bottomLeft: Radius.circular(32),
+                            //                 ),
+                            //                 child: Container(
+                            //                   width: 4,
+                            //                   height: 4,
+                            //                   color: gridColor,
+                            //                 ),
+                            //               ),
+                            //             )
+                            //           ]),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   } else if (snakePos == previousSnakePos + 1 &&
+                            //       snakePos == nextSnakePos + 22) {
+                            //     return Center(
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.only(
+                            //             top: 0, bottom: 4, left: 0, right: 4),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             bottomRight: Radius.circular(32),
+                            //           ),
+                            //           child: Stack(children: [
+                            //             Container(
+                            //               width: sizeSquare,
+                            //               height: sizeSquare,
+                            //               color: snakeColor,
+                            //             ),
+                            //             Positioned(
+                            //               left: 0,
+                            //               top: 0,
+                            //               child: ClipRRect(
+                            //                 borderRadius:
+                            //                     const BorderRadius.only(
+                            //                   bottomRight: Radius.circular(32),
+                            //                 ),
+                            //                 child: Container(
+                            //                   width: 4,
+                            //                   height: 4,
+                            //                   color: gridColor,
+                            //                 ),
+                            //               ),
+                            //             )
+                            //           ]),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   } else if (snakePos == previousSnakePos - 1 &&
+                            //       snakePos == nextSnakePos - 22) {
+                            //     return Center(
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.only(
+                            //             top: 4, bottom: 0, left: 4, right: 0),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             topLeft: Radius.circular(32),
+                            //           ),
+                            //           child: Stack(children: [
+                            //             Container(
+                            //               width: sizeSquare,
+                            //               height: sizeSquare,
+                            //               color: snakeColor,
+                            //             ),
+                            //             Positioned(
+                            //               right: 0,
+                            //               bottom: 0,
+                            //               child: ClipRRect(
+                            //                 borderRadius:
+                            //                     const BorderRadius.only(
+                            //                   topLeft: Radius.circular(32),
+                            //                 ),
+                            //                 child: Container(
+                            //                   width: 4,
+                            //                   height: 4,
+                            //                   color: gridColor,
+                            //                 ),
+                            //               ),
+                            //             )
+                            //           ]),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   } else if (snakePos == previousSnakePos + 1 &&
+                            //       snakePos == nextSnakePos - 22) {
+                            //     return Center(
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.only(
+                            //             top: 4, bottom: 0, left: 0, right: 4),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             topRight: Radius.circular(32),
+                            //           ),
+                            //           child: Stack(children: [
+                            //             Container(
+                            //               width: sizeSquare,
+                            //               height: sizeSquare,
+                            //               color: snakeColor,
+                            //             ),
+                            //             Positioned(
+                            //               left: 0,
+                            //               bottom: 0,
+                            //               child: ClipRRect(
+                            //                 borderRadius:
+                            //                     const BorderRadius.only(
+                            //                   topRight: Radius.circular(32),
+                            //                 ),
+                            //                 child: Container(
+                            //                   width: 4,
+                            //                   height: 4,
+                            //                   color: gridColor,
+                            //                 ),
+                            //               ),
+                            //             )
+                            //           ]),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   } else if (snakePos == previousSnakePos + 22 &&
+                            //       snakePos == nextSnakePos + 1) {
+                            //     return Center(
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.only(
+                            //             top: 0, bottom: 4, left: 0, right: 4),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             bottomRight: Radius.circular(32),
+                            //           ),
+                            //           child: Stack(children: [
+                            //             Container(
+                            //               width: sizeSquare,
+                            //               height: sizeSquare,
+                            //               color: snakeColor,
+                            //             ),
+                            //             Positioned(
+                            //               left: 0,
+                            //               top: 0,
+                            //               child: ClipRRect(
+                            //                 borderRadius:
+                            //                     const BorderRadius.only(
+                            //                   bottomRight: Radius.circular(32),
+                            //                 ),
+                            //                 child: Container(
+                            //                   width: 4,
+                            //                   height: 4,
+                            //                   color: gridColor,
+                            //                 ),
+                            //               ),
+                            //             )
+                            //           ]),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   } else if (snakePos == previousSnakePos + 22 &&
+                            //       snakePos == nextSnakePos - 1) {
+                            //     return Center(
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.only(
+                            //             top: 0, bottom: 4, left: 4, right: 0),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             bottomLeft: Radius.circular(32),
+                            //           ),
+                            //           child: Stack(children: [
+                            //             Container(
+                            //               width: sizeSquare,
+                            //               height: sizeSquare,
+                            //               color: snakeColor,
+                            //             ),
+                            //             Positioned(
+                            //               right: 0,
+                            //               top: 0,
+                            //               child: ClipRRect(
+                            //                 borderRadius:
+                            //                     const BorderRadius.only(
+                            //                   bottomLeft: Radius.circular(32),
+                            //                 ),
+                            //                 child: Container(
+                            //                   width: 4,
+                            //                   height: 4,
+                            //                   color: gridColor,
+                            //                 ),
+                            //               ),
+                            //             )
+                            //           ]),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   } else if (snakePos == previousSnakePos + 22 &&
+                            //       snakePos == nextSnakePos + 1) {
+                            //     return Center(
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.only(
+                            //             top: 0, bottom: 4, left: 0, right: 4),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             bottomRight: Radius.circular(32),
+                            //           ),
+                            //           child: Stack(children: [
+                            //             Container(
+                            //               width: sizeSquare,
+                            //               height: sizeSquare,
+                            //               color: snakeColor,
+                            //             ),
+                            //             Positioned(
+                            //               left: 0,
+                            //               top: 0,
+                            //               child: ClipRRect(
+                            //                 borderRadius:
+                            //                     const BorderRadius.only(
+                            //                   bottomRight: Radius.circular(32),
+                            //                 ),
+                            //                 child: Container(
+                            //                   width: 4,
+                            //                   height: 4,
+                            //                   color: gridColor,
+                            //                 ),
+                            //               ),
+                            //             )
+                            //           ]),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   } else if (snakePos == previousSnakePos - 22 &&
+                            //       snakePos == nextSnakePos - 1) {
+                            //     return Center(
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.only(
+                            //             top: 4, bottom: 0, left: 4, right: 0),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             topLeft: Radius.circular(32),
+                            //           ),
+                            //           child: Stack(children: [
+                            //             Container(
+                            //               width: sizeSquare,
+                            //               height: sizeSquare,
+                            //               color: snakeColor,
+                            //             ),
+                            //             Positioned(
+                            //               right: 0,
+                            //               bottom: 0,
+                            //               child: ClipRRect(
+                            //                 borderRadius:
+                            //                     const BorderRadius.only(
+                            //                   topLeft: Radius.circular(32),
+                            //                 ),
+                            //                 child: Container(
+                            //                   width: 4,
+                            //                   height: 4,
+                            //                   color: gridColor,
+                            //                 ),
+                            //               ),
+                            //             )
+                            //           ]),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   } else if (snakePos == previousSnakePos - 22 &&
+                            //       snakePos == nextSnakePos + 1) {
+                            //     return Center(
+                            //       child: Padding(
+                            //         padding: const EdgeInsets.only(
+                            //             top: 4, bottom: 0, left: 0, right: 4),
+                            //         child: ClipRRect(
+                            //           borderRadius: const BorderRadius.only(
+                            //             topRight: Radius.circular(32),
+                            //           ),
+                            //           child: Stack(children: [
+                            //             Container(
+                            //               width: sizeSquare,
+                            //               height: sizeSquare,
+                            //               color: snakeColor,
+                            //             ),
+                            //             Positioned(
+                            //               left: 0,
+                            //               bottom: 0,
+                            //               child: ClipRRect(
+                            //                 borderRadius:
+                            //                     const BorderRadius.only(
+                            //                   topRight: Radius.circular(32),
+                            //                 ),
+                            //                 child: Container(
+                            //                   width: 4,
+                            //                   height: 4,
+                            //                   color: gridColor,
+                            //                 ),
+                            //               ),
+                            //             )
+                            //           ]),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   }
+                            //   if (snakePos == nextSnakePos - 1 ||
+                            //       snakePos == nextSnakePos + 1) {
+                            //     return Center(
+                            //       child: Container(
+                            //         padding: const EdgeInsets.only(
+                            //             top: 4, bottom: 4, left: 0, right: 0),
+                            //         child: ClipRRect(
+                            //           // borderRadius: BorderRadius.circular(4),
+                            //           child: Container(color: snakeColor),
+                            //         ),
+                            //       ),
+                            //     );
+                            //   } else if (snakePos == nextSnakePos - rowSize ||
+                            //       snakePos == nextSnakePos + rowSize) {
+                            //     return Center(
+                            //       child: Container(
+                            //         padding: const EdgeInsets.only(
+                            //             top: 0, bottom: 0, left: 4, right: 4),
+                            //         child: ClipRRect(
+                            //           // borderRadius: BorderRadius.circular(4),
+                            //           child: Container(color: snakeColor),
+                            //         ),
+                            //       ),
+                            //     );
+                            // }
                             if (snakePosition.contains(index)) {
                               return Center(
                                 child: Container(
@@ -1206,6 +2085,7 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                                 ),
                               );
                             }
+                            // }
                             if (isPoison && index == poison) {
                               return Container(
                                 padding: const EdgeInsets.all(2),
@@ -1229,15 +2109,43 @@ class SnakeState extends State<Snake> with WidgetsBindingObserver {
                               );
                             }
                             if (isBorder && borders.contains(index)) {
-                              return Container(
-                                padding: const EdgeInsets.all(2),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
+                              if (index == 0) {
+                                return ClipRRect(
+                                  borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(8)),
                                   child: Container(
                                     color: Colors.blueGrey,
                                   ),
-                                ),
-                              );
+                                );
+                              } else if (index == rowSize - 1) {
+                                return ClipRRect(
+                                  borderRadius: const BorderRadius.only(
+                                      topRight: Radius.circular(8)),
+                                  child: Container(
+                                    color: Colors.blueGrey,
+                                  ),
+                                );
+                              } else if (index == numberOfSquares - rowSize) {
+                                return ClipRRect(
+                                  borderRadius: const BorderRadius.only(
+                                      bottomLeft: Radius.circular(8)),
+                                  child: Container(
+                                    color: Colors.blueGrey,
+                                  ),
+                                );
+                              } else if (index == numberOfSquares - 1) {
+                                return ClipRRect(
+                                  borderRadius: const BorderRadius.only(
+                                      bottomRight: Radius.circular(8)),
+                                  child: Container(
+                                    color: Colors.blueGrey,
+                                  ),
+                                );
+                              } else {
+                                return Container(
+                                  color: Colors.blueGrey,
+                                );
+                              }
                             }
                             if (index == food) {
                               return Container(
