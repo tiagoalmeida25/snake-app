@@ -336,7 +336,7 @@ class _ProfileState extends State<Profile> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
-                                'You can scroll through all your past scores.e',
+                                'You can scroll through all your past scores.',
                                 textAlign: TextAlign.center,
                               ),
                               duration: Duration(seconds: 3),
